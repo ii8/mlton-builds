@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          name: MLton/mlton
+          repository: MLton/mlton
           ref: refs/heads/${{ matrix.ref }}
 
       - run: apt-get install mlton
