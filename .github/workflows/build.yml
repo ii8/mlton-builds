@@ -18,18 +18,18 @@ jobs:
           ref: refs/heads/${{ matrix.ref }}
 
       - name: Install mlton
-      - run: |
+        run: |
           sudo apt-get update
           sudo apt-get install mlton
 
       - name: Install toolchain
-      - run: |
+        run: |
           curl -sO https://more.musl.cc/x86_64-linux-musl/aarch64-linux-musl-cross.tgz
           tar -xf aarch64-linux-musl-cross.tgz
           sudo cp -fpr aarch64-linux-musl-cross/* /usr/local/
 
       - name: Install gmp
-      - run: |
+        run: |
           curl -sO https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
