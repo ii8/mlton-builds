@@ -32,4 +32,5 @@ jobs:
           cd gmp-6.3.0
           ./configure --disable-shared --build=x86_64-linux-gnu --host=aarch64-linux-musl
           make
+          make check
           sudo make install
