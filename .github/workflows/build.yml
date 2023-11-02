@@ -22,12 +22,12 @@ jobs:
           sudo apt-get install mlton
 
       - run: |
-          curl -O -L https://more.musl.cc/x86_64-linux-musl/aarch64-linux-musl-cross.tgz
+          curl -sOL https://more.musl.cc/x86_64-linux-musl/aarch64-linux-musl-cross.tgz
           tar -xf aarch64-linux-musl-cross.tgz
           sudo cp -fpr aarch64-linux-musl-cross/* /usr/local/
 
       - run: |
-          curl -O -L https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz
+          curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
 
