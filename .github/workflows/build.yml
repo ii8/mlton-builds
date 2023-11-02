@@ -7,9 +7,9 @@ jobs:
   build:
     strategy:
       matrix:
-        arch: ["x86", "amd64", "arm64"]
-        ref: ["release", "master"]
-    runs-on: ubuntu-latest
+        arch: ["arm64"]
+        ref: ["on-20210117-release", "master"]
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v4
