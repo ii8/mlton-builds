@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         arch: ["arm64"]
-        ref: ["on-20210117-release", "master"]
+        ref: ["master"]
     runs-on: ubuntu-20.04
 
     steps:
@@ -17,4 +17,11 @@ jobs:
           repository: MLton/mlton
           ref: refs/heads/${{ matrix.ref }}
 
-      - run: sudo apt-get install mlton
+      - run: |
+          sudo apt-get update
+          sudo apt-get install mlton
+      - run: |
+          curl -sO https://more.musl.cc/x86_64-linux-musl/aarch64-linux-musl-cross.tgz
+          tar -xf aarch64-linux-musl-cross.tgz
+          sudo cp -r aarch64-linux-musl-cross/* /
+        
