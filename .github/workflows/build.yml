@@ -23,5 +23,5 @@ jobs:
       - run: |
           curl -sO https://more.musl.cc/x86_64-linux-musl/aarch64-linux-musl-cross.tgz
           tar -xf aarch64-linux-musl-cross.tgz
-          sudo cp -fpR aarch64-linux-musl-cross/* /
+          sudo cp -fpr aarch64-linux-musl-cross/* /
         
