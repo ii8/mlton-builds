@@ -1,0 +1,20 @@
+name: build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        arch: ["x86", "amd64", "arm64"]
+        ref: ["release", "master"]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          name: MLton/mlton
+          ref: refs/heads/${{ matrix.ref }}
+
+      - run: apt-get install mlton
