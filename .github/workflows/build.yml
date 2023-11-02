@@ -30,7 +30,6 @@ jobs:
           curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-
-      - run: ./configure --disable-shared --build=x86_64-linux-gnu --host=aarch64-linux-musl
-      - run: make
-      - run: sudo make install
+          ./configure --disable-shared --build=x86_64-linux-gnu --host=aarch64-linux-musl
+          make
+          sudo make install
