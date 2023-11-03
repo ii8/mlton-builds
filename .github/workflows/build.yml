@@ -42,10 +42,10 @@ jobs:
           
       - name: Install toolchain
         run: |
-          curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch }}-linux-musl-cross.tgz
-          tar -xf ${{ matrix.arch }}-linux-musl-cross.tgz
-          rm ${{ matrix.arch }}-linux-musl-cross.tgz
-          sudo cp -fpr ${{ matrix.arch }}-linux-musl-cross/* /usr/local/
+          curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.config.arch }}-linux-musl-cross.tgz
+          tar -xf ${{ matrix.config.arch }}-linux-musl-cross.tgz
+          rm ${{ matrix.config.arch }}-linux-musl-cross.tgz
+          sudo cp -fpr ${{ matrix.config.arch }}-linux-musl-cross/* /usr/local/
           
       - name: Install gmp
         run: |
@@ -53,47 +53,47 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch }}-linux-musl
+          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.config.arch }}-linux-musl
           make
           # make check
           sudo make install
 
       - name: Build runtime
         run: |
-          PATH="$(pwd)/boot/bin:$PATH" make -C runtime LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
-          qemu-${{ matrix.arch }}-static runtime/gen/gen-types ml-types.h > runtime/gen/ml-types.h
+          PATH="$(pwd)/boot/bin:$PATH" make -C runtime LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
+          qemu-${{ matrix.config.arch }}-static runtime/gen/gen-types ml-types.h > runtime/gen/ml-types.h
           cp -fpR runtime/gen/ml-types.h runtime/ml-types.h
-          qemu-${{ matrix.arch }}-static runtime/gen/gen-types c-types.h > runtime/gen/c-types.h
+          qemu-${{ matrix.config.arch }}-static runtime/gen/gen-types c-types.h > runtime/gen/c-types.h
           cp -fpR runtime/gen/c-types.h runtime/c-types.h
-          qemu-${{ matrix.arch }}-static runtime/gen/gen-types c-types.sml > runtime/gen/c-types.sml
-          qemu-${{ matrix.arch }}-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
-          qemu-${{ matrix.arch }}-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
-          PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} WITH_GMP_DIR=/usr/local dirs
-          PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} WITH_GMP_DIR=/usr/local runtime
-          cp -fpR build/lib/mlton/targets/${{ matrix.arch }}-linux-musl boot/lib/mlton/targets/
+          qemu-${{ matrix.config.arch }}-static runtime/gen/gen-types c-types.sml > runtime/gen/c-types.sml
+          qemu-${{ matrix.config.arch }}-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
+          qemu-${{ matrix.config.arch }}-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
+          PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local dirs
+          PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local runtime
+          cp -fpR build/lib/mlton/targets/${{ matrix.config.arch }}-linux-musl boot/lib/mlton/targets/
 
       - name: Build MLton
         run: |
           PATH="$(pwd)/boot/bin:$PATH" \
           make \
             BOOTSTRAP_STYLE=0 \
-            TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} \
+            TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} \
             OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
             compiler
             
           PATH="$(pwd)/boot/bin:$PATH" \
           make \
             BOOTSTRAP_STYLE=0 \
-            TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} \
+            TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} \
             script basis-no-check libraries-no-check
             
-          mv build/lib/mlton/targets/${{ matrix.arch }}-linux-musl build/lib/mlton/targets/self
+          mv build/lib/mlton/targets/${{ matrix.config.arch }}-linux-musl build/lib/mlton/targets/self
           mv Makefile.binary build/Makefile
-          mv build mlton-${{ inputs.ref }}.${{ matrix.arch }}-linux
-          tar czvf mlton-${{ inputs.ref }}.${{ matrix.arch }}-linux.tgz mlton-${{ inputs.ref }}.${{ matrix.arch }}-linux
+          mv build mlton-${{ inputs.ref }}.${{ matrix.config.arch }}-linux
+          tar czvf mlton-${{ inputs.ref }}.${{ matrix.config.arch }}-linux.tgz mlton-${{ inputs.ref }}.${{ matrix.config.arch }}-linux
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: mlton-${{ matrix.ref }}.${{ matrix.arch }}-linux
+          name: mlton-${{ matrix.ref }}.${{ matrix.config.arch }}-linux
           path: ./*.tgz
