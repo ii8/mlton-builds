@@ -50,6 +50,6 @@ jobs:
 
       - run: make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local dirs
       - run: make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local runtime
-      - run: cp -fpR build/lib/mlton/targets/aarch64-linux-musl /usr/lib/mlton/targets/
+      - run: sudo cp -fpR build/lib/mlton/targets/aarch64-linux-musl /usr/lib/mlton/targets/
 
       - run: make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local all
