@@ -35,11 +35,11 @@ jobs:
           # make check
           sudo make install
 
-      - run: make -C runtime TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
+      - run: make -C runtime CFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
       - run: qemu-aarch64-static runtime/gen/gen-types runtime/ml-types.h > runtime/gen/ml-types.h
       - run: cp -fpR runtime/gen/ml-types.h runtime/ml-types.h
       - run: qemu-aarch64-static runtime/gen/gen-types runtime/c-types.h > runtime/gen/c-types.h
       - run: cp -fpR runtime/gen/c-types.h runtime/c-types.h
       - run: qemu-aarch64-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
       - run: qemu-aarch64-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
-      - run: make TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local all
+      - run: make CFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local all
