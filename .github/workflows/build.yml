@@ -47,7 +47,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          CC_FOR_BUILD=/usr/bin/gcc ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.config.arch }}-linux-musl
+          CC_FOR_BUILD='/usr/local/bin/gcc -static' ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.config.arch }}-linux-musl
           make
           # make check
           sudo make install
