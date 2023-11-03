@@ -9,7 +9,66 @@ on:
         type: string
 
 jobs:
-  build:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: x86_64, arch_group: amd64 }
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: MLton/mlton
+          ref: refs/heads/${{ inputs.ref }}
+
+      - name: Install bootstrap mlton
+        run: |
+          mkdir boot && cd boot
+          curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117-1.amd64-linux-glibc2.31.tgz
+          tar xzf mlton-20210117-1.amd64-linux-glibc2.31.tgz --exclude='*/share'
+          rm mlton-20210117-1.amd64-linux-glibc2.31.tgz
+          mv mlton-20210117-1.amd64-linux-glibc2.31/* .
+          rmdir mlton-20210117-1.amd64-linux-glibc2.31
+          
+      - name: Install toolchain
+        run: |
+          curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.config.arch }}-linux-musl-native.tgz
+          tar -xf ${{ matrix.config.arch }}-linux-musl-native.tgz
+          rm ${{ matrix.config.arch }}-linux-musl-native.tgz
+          sudo cp -fpr ${{ matrix.config.arch }}-linux-musl-native/* /usr/local/
+          
+      - name: Install gmp
+        run: |
+          curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
+          tar -xf gmp-6.3.0.tar.xz
+          rm gmp-6.3.0.tar.xz
+          cd gmp-6.3.0
+          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.config.arch }}-linux-musl
+          make
+          # make check
+          sudo make install
+
+      - name: Build MLton
+        run: |
+          PATH="$(pwd)/boot/bin:$PATH" \
+          make \
+            LDFLAGS=-static WITH_GMP_DIR=/usr/local \
+            CC=${{ matrix.config.arch }}-linux-musl-gcc AR=${{ matrix.config.arch }}-linux-musl-gcc-ar RANLIB=${{ matrix.config.arch }}-linux-musl-gcc-ranlib \
+            OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
+            all
+
+          mv Makefile.binary build/Makefile
+          mv build mlton-${{ inputs.ref }}.${{ matrix.config.arch }}-linux
+          tar czvf mlton-${{ inputs.ref }}.${{ matrix.config.arch }}-linux.tgz mlton-${{ inputs.ref }}.${{ matrix.config.arch }}-linux
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+
+  cross:
     strategy:
       fail-fast: false
       matrix:
