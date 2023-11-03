@@ -54,5 +54,9 @@ jobs:
       
       - run: qemu-aarch64-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
       - run: qemu-aarch64-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
+
+      - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local dirs
+      - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local runtime
+      - run: sudo cp -fpR build/lib/mlton/targets/aarch64-linux-musl boot/lib/mlton/targets/
       
       - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include" all
