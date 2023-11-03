@@ -19,7 +19,7 @@ jobs:
 
       - run: |
           sudo apt-get update
-          sudo apt-get install gmp-devel qemu-user-static
+          sudo apt-get install libgmp-dev qemu-user-static
 
       - run: |
           mkdir boot && cd boot
