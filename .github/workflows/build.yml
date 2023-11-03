@@ -32,5 +32,7 @@ jobs:
           cd gmp-6.3.0
           ./configure --disable-shared --build=x86_64-linux-gnu --host=aarch64-linux-musl
           make
-          make check
+          # make check
           sudo make install
+
+      - run: make TARGET=aarch64-linux-musl TARGET_ARCH=arm64 all
