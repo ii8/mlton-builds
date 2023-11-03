@@ -42,7 +42,9 @@ jobs:
           # make check
           sudo make install
 
-      - run: PATH="$(pwd)/boot/bin:$PATH" make -C runtime LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
+      - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 all
+
+      - run: make -C runtime LDFLAGS=-static BOOTSTRAP_STYLE=1 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
   
       - run: qemu-aarch64-static runtime/gen/gen-types ml-types.h > runtime/gen/ml-types.h
       - run: cp -fpR runtime/gen/ml-types.h runtime/ml-types.h
@@ -54,7 +56,5 @@ jobs:
       
       - run: qemu-aarch64-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
       - run: qemu-aarch64-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
-
-      - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 all
       
       - run: make LDFLAGS=-static BOOTSTRAP_STYLE=1 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include" all
