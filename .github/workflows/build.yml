@@ -35,4 +35,4 @@ jobs:
           # make check
           sudo make install
 
-      - run: make TARGET=aarch64-linux-musl TARGET_ARCH=arm64 all
+      - run: make TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local all
