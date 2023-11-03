@@ -80,7 +80,7 @@ jobs:
             script basis-no-check libraries-no-check
             
           mv build/lib/mlton/targets/aarch64-linux-musl build/lib/mlton/targets/self
-          mv Makefine.binary build/Makefile
+          mv Makefile.binary build/Makefile
           mv build mlton.aarch64-linux-musl
           tar czvf mlton.aarch64-linux-musl.tgz mlton.aarch64-linux-musl
 
