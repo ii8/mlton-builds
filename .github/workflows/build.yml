@@ -9,7 +9,7 @@ jobs:
       matrix:
         arch: ["arm64"]
         ref: ["master"]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +19,14 @@ jobs:
 
       - run: |
           sudo apt-get update
-          sudo apt-get install mlton qemu-user-static
+          sudo apt-get install libgmp qemu-user-static
+
+      - run: |
+          mkdir boot && cd boot
+          curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117-1.amd64-linux-glibc2.31.tgz
+          tar xzf mlton-20210117-1.amd64-linux-glibc2.31.tgz --exclude='*/share'
+          mv mlton-20210117-1.amd64-linux-glibc2.31/* .
+          rmdir mlton-20210117-1.amd64-linux-glibc2.31
 
       - run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/aarch64-linux-musl-cross.tgz
@@ -35,7 +42,7 @@ jobs:
           # make check
           sudo make install
 
-      - run: make -C runtime LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
+      - run: PATH="$(pwd)/boot/bin:$PATH" make -C runtime LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
   
       - run: qemu-aarch64-static runtime/gen/gen-types ml-types.h > runtime/gen/ml-types.h
       - run: cp -fpR runtime/gen/ml-types.h runtime/ml-types.h
@@ -48,8 +55,8 @@ jobs:
       - run: qemu-aarch64-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
       - run: qemu-aarch64-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
 
-      - run: make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local dirs
-      - run: make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local runtime
+      - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local dirs
+      - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local runtime
       - run: sudo cp -fpR build/lib/mlton/targets/aarch64-linux-musl /usr/lib/mlton/targets/
 
-      - run: make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local all
+      - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local all
