@@ -68,15 +68,24 @@ jobs:
         run: |
           PATH="$(pwd)/boot/bin:$PATH" \
           make \
-            LDFLAGS=-static BOOTSTRAP_STYLE=0 \
+            BOOTSTRAP_STYLE=0 \
             TARGET=aarch64-linux-musl TARGET_ARCH=arm64 \
-            WITH_GMP_DIR=/usr/local \
             OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
-            MLTON_BINARY_RELEASE_WITH_DOCS=false \
-            binary-release
+            compiler
             
+          PATH="$(pwd)/boot/bin:$PATH" \
+          make \
+            BOOTSTRAP_STYLE=0 \
+            TARGET=aarch64-linux-musl TARGET_ARCH=arm64 \
+            script basis-no-check libraries-no-check
+            
+          mv build/lib/mlton/targets/aarch64-linux-musl build/lib/mlton/targets/self
+          mv Makefine.binary build/Makefile
+          mv build mlton.aarch64-linux-musl
+          tar czvf mlton.aarch64-linux-musl.tgz mlton.aarch64-linux-musl
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: mlton-aarch64-linux-static-master
+          name: mlton-master-aarch64-linux-musl
           path: ./*.tgz
