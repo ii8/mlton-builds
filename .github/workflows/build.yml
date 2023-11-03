@@ -48,6 +48,7 @@ jobs:
       - run: qemu-aarch64-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
       - run: qemu-aarch64-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
 
+      - run: make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local dirs
       - run: make LDFLAGS=-static TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local runtime
       - run: cp -fpR build/lib/mlton/targets/aarch64-linux-musl /usr/lib/mlton/targets/
 
