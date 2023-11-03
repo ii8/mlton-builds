@@ -25,17 +25,20 @@ jobs:
           mkdir boot && cd boot
           curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117-1.amd64-linux-glibc2.31.tgz
           tar xzf mlton-20210117-1.amd64-linux-glibc2.31.tgz --exclude='*/share'
+          rm mlton-20210117-1.amd64-linux-glibc2.31.tgz
           mv mlton-20210117-1.amd64-linux-glibc2.31/* .
           rmdir mlton-20210117-1.amd64-linux-glibc2.31
 
       - run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/aarch64-linux-musl-cross.tgz
           tar -xf aarch64-linux-musl-cross.tgz
+          rm aarch64-linux-musl-cross.tgz
           sudo cp -fpr aarch64-linux-musl-cross/* /usr/local/
 
       - run: |
           curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
+          rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
           ./configure --disable-shared --build=x86_64-linux-gnu --host=aarch64-linux-musl
           make
@@ -59,4 +62,9 @@ jobs:
       - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local runtime
       - run: sudo cp -fpR build/lib/mlton/targets/aarch64-linux-musl boot/lib/mlton/targets/
       
-      - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include" all
+      - run: PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static'" MLTON_BINARY_RELEASE_WITH_DOCS=false binary-release
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: mlton-aarch64-linux-static-master
+          path: ./*.tgz
