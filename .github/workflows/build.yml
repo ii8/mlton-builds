@@ -2,13 +2,21 @@ name: build
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'git ref'
+        required: true
+        type: string
 
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        arch: ["arm64"]
-        ref: ["master"]
+        config:
+          - { arch: aarch64, arch_group: arm64 }
+          - { arch: powerpc, arch_group: powerpc }
+
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MLton/mlton
-          ref: refs/heads/${{ matrix.ref }}
+          ref: refs/heads/${{ inputs.ref }}
 
       - name: Install system prerequisites
         run: |
@@ -34,10 +42,10 @@ jobs:
           
       - name: Install toolchain
         run: |
-          curl -sOL https://more.musl.cc/x86_64-linux-musl/aarch64-linux-musl-cross.tgz
-          tar -xf aarch64-linux-musl-cross.tgz
-          rm aarch64-linux-musl-cross.tgz
-          sudo cp -fpr aarch64-linux-musl-cross/* /usr/local/
+          curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch }}-linux-musl-cross.tgz
+          tar -xf ${{ matrix.arch }}-linux-musl-cross.tgz
+          rm ${{ matrix.arch }}-linux-musl-cross.tgz
+          sudo cp -fpr ${{ matrix.arch }}-linux-musl-cross/* /usr/local/
           
       - name: Install gmp
         run: |
@@ -45,47 +53,47 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          ./configure --disable-shared --build=x86_64-linux-gnu --host=aarch64-linux-musl
+          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch }}-linux-musl
           make
           # make check
           sudo make install
 
       - name: Build runtime
         run: |
-          PATH="$(pwd)/boot/bin:$PATH" make -C runtime LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
-          qemu-aarch64-static runtime/gen/gen-types ml-types.h > runtime/gen/ml-types.h
+          PATH="$(pwd)/boot/bin:$PATH" make -C runtime LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
+          qemu-${{ matrix.arch }}-static runtime/gen/gen-types ml-types.h > runtime/gen/ml-types.h
           cp -fpR runtime/gen/ml-types.h runtime/ml-types.h
-          qemu-aarch64-static runtime/gen/gen-types c-types.h > runtime/gen/c-types.h
+          qemu-${{ matrix.arch }}-static runtime/gen/gen-types c-types.h > runtime/gen/c-types.h
           cp -fpR runtime/gen/c-types.h runtime/c-types.h
-          qemu-aarch64-static runtime/gen/gen-types c-types.sml > runtime/gen/c-types.sml
-          qemu-aarch64-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
-          qemu-aarch64-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
-          PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local dirs
-          PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=aarch64-linux-musl TARGET_ARCH=arm64 WITH_GMP_DIR=/usr/local runtime
-          cp -fpR build/lib/mlton/targets/aarch64-linux-musl boot/lib/mlton/targets/
+          qemu-${{ matrix.arch }}-static runtime/gen/gen-types c-types.sml > runtime/gen/c-types.sml
+          qemu-${{ matrix.arch }}-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
+          qemu-${{ matrix.arch }}-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
+          PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} WITH_GMP_DIR=/usr/local dirs
+          PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} WITH_GMP_DIR=/usr/local runtime
+          cp -fpR build/lib/mlton/targets/${{ matrix.arch }}-linux-musl boot/lib/mlton/targets/
 
       - name: Build MLton
         run: |
           PATH="$(pwd)/boot/bin:$PATH" \
           make \
             BOOTSTRAP_STYLE=0 \
-            TARGET=aarch64-linux-musl TARGET_ARCH=arm64 \
+            TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} \
             OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
             compiler
             
           PATH="$(pwd)/boot/bin:$PATH" \
           make \
             BOOTSTRAP_STYLE=0 \
-            TARGET=aarch64-linux-musl TARGET_ARCH=arm64 \
+            TARGET=${{ matrix.arch }}-linux-musl TARGET_ARCH=${{ matrix.arch_group }} \
             script basis-no-check libraries-no-check
             
-          mv build/lib/mlton/targets/aarch64-linux-musl build/lib/mlton/targets/self
+          mv build/lib/mlton/targets/${{ matrix.arch }}-linux-musl build/lib/mlton/targets/self
           mv Makefile.binary build/Makefile
-          mv build mlton.aarch64-linux-musl
-          tar czvf mlton.aarch64-linux-musl.tgz mlton.aarch64-linux-musl
+          mv build mlton-${{ inputs.ref }}.${{ matrix.arch }}-linux
+          tar czvf mlton-${{ inputs.ref }}.${{ matrix.arch }}-linux.tgz mlton-${{ inputs.ref }}.${{ matrix.arch }}-linux
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: mlton-master-aarch64-linux-musl
+          name: mlton-${{ matrix.ref }}.${{ matrix.arch }}-linux
           path: ./*.tgz
