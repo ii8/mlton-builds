@@ -52,6 +52,7 @@ jobs:
         run: |
           sudo apt-get install gcc-${{ matrix.arch.name }}-linux-gnu \
                           binutils-${{ matrix.arch.name }}-linux-gnu
+          sudo ln -s /usr/bin/${{ matrix.arch.name }}-linux-gnu-gcc /usr/bin/${{ matrix.arch.name }}-linux-gnu-cc
 
       - name: Install toolchain (buildroot)
         if: ${{ false }}
