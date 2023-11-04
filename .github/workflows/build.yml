@@ -50,7 +50,8 @@ jobs:
       - name: Install toolchain (glibc)
         if: ${{ matrix.libc == 'gnu' }}
         run: |
-          sudo apt-get install gcc-10-${{ matrix.arch.name }}-linux-gnu
+          sudo apt-get install gcc-10-${{ matrix.arch.name }}-linux-gnu \
+                             binutils-${{ matrix.arch.name }}-linux-gnu
 
       - name: Install toolchain (buildroot)
         if: ${{ false }}
@@ -68,8 +69,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          sudo mkdir -p /opt/gmp
-          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }} --prefix=/opt/gmp
+          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
           # make check
           sudo make install
@@ -93,15 +93,15 @@ jobs:
           mv mlton-20210117 src
           cp ../runtime/platform/linux.h src/runtime/platform/linux.h
           cd src
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/opt/gmp dirs
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/opt/gmp runtime
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local dirs
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local runtime
           cp -fpR src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} lib/mlton/targets/
 
       - name: Build target runtime (new)
         if: ${{ true }}
         run: |
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/opt/gmp dirs
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/opt/gmp runtime
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local dirs
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local runtime
           cp -fpR build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} boot/lib/mlton/targets/
 
       - name: Build MLton
