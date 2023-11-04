@@ -24,6 +24,10 @@ jobs:
         with:
           repository: MLton/mlton
           ref: refs/heads/${{ inputs.ref }}
+          
+      - name: Remove system gcc
+        run: |
+          sudo apt-get remove gcc libc-dev libtool
 
       - name: Install bootstrap mlton
         run: |
