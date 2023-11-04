@@ -57,24 +57,33 @@ jobs:
 
       - name: Install bootstrap mlton
         run: |
-          mkdir boot && cd boot
           curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117-1.amd64-linux-glibc2.31.tgz
           tar xzf mlton-20210117-1.amd64-linux-glibc2.31.tgz --exclude='*/share'
           rm mlton-20210117-1.amd64-linux-glibc2.31.tgz
-          mv mlton-20210117-1.amd64-linux-glibc2.31/* .
-          rmdir mlton-20210117-1.amd64-linux-glibc2.31
+          mv mlton-20210117-1.amd64-linux-glibc2.31 boot
           # Backport fixes
-          cp ../runtime/platform/linux.h lib/mlton/include/platform/linux.h
+          cp runtime/platform/linux.h boot/lib/mlton/include/platform/linux.h
 
-          # Build target runtime
+      - name: Build target runtime (old)
+        if: ${{ false }}
+        run: |
+          cd boot
           curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117.src.tgz
           tar xzf mlton-20210117.src.tgz
           rm mlton-20210117.src.tgz
           mv mlton-20210117 src
           cp ../runtime/platform/linux.h src/runtime/platform/linux.h
-          PATH="$(pwd)/bin:$PATH" make -C src LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local dirs
-          PATH="$(pwd)/bin:$PATH" make -C src LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local runtime
+          cd src
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local dirs
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local runtime
           cp -fpR src/build/lib/mlton/targets/${{ matrix.config.arch }}-linux-musl lib/mlton/targets/
+
+      - name: Build target runtime (new)
+        if: ${{ true }}
+        run: |
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local dirs
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local runtime
+          cp -fpR build/lib/mlton/targets/${{ matrix.config.arch }}-linux-musl boot/lib/mlton/targets/
 
       - name: Build MLton
         run: |
