@@ -48,7 +48,7 @@ jobs:
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.config.arch }}-linux-musl-native.tgz
           tar -xf ${{ matrix.config.arch }}-linux-musl-native.tgz
           rm ${{ matrix.config.arch }}-linux-musl-native.tgz
-          sudo cp -fpr ${{ matrix.config.arch }}-linux-musl-native/* /usr/
+          sudo cp -fpr ${{ matrix.config.arch }}-linux-musl-native/* /usr/local/
 
       - name: Install gmp
         run: |
@@ -56,7 +56,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          CC_FOR_BUILD='/usr/bin/gcc -static' ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.config.arch }}-linux-musl
+          CC_FOR_BUILD='/usr/local/bin/gcc -static' ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.config.arch }}-linux-musl
           make
           # make check
           sudo make install
@@ -67,7 +67,7 @@ jobs:
           make \
             LDFLAGS=-static WITH_GMP_DIR=/usr/local \
             CC=${{ matrix.config.arch }}-linux-musl-gcc AR=${{ matrix.config.arch }}-linux-musl-gcc-ar RANLIB=${{ matrix.config.arch }}-linux-musl-gcc-ranlib \
-            OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
+            OLD_MLTON_COMPILE_ARGS="-cc ${{ matrix.config.arch }}-linux-musl-gcc -cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
             all
 
           mv Makefile.binary build/Makefile
@@ -107,6 +107,8 @@ jobs:
           rm mlton-20210117-1.amd64-linux-glibc2.31.tgz
           mv mlton-20210117-1.amd64-linux-glibc2.31/* .
           rmdir mlton-20210117-1.amd64-linux-glibc2.31
+          # Backport fixes
+          cp ../runtime/platform/linux.h lib/mlton/include/platform/linux.h
           
       - name: Install toolchain
         run: |
