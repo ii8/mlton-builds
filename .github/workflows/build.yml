@@ -56,7 +56,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          CC_FOR_BUILD='/usr/local/bin/gcc -static' ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.config.arch }}-linux-musl
+          CC_FOR_BUILD='/usr/bin/gcc -static' ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.config.arch }}-linux-musl
           make
           # make check
           sudo make install
@@ -82,8 +82,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { arch: aarch64, arch_group: arm64 }
-          - { arch: powerpc, arch_group: powerpc }
+          - { arch: aarch64, arch_group: arm64, qemu: aarch64 }
+          - { arch: powerpc, arch_group: powerpc, qemu: ppc }
 
     runs-on: ubuntu-latest
 
@@ -129,13 +129,13 @@ jobs:
       - name: Build runtime
         run: |
           PATH="$(pwd)/boot/bin:$PATH" make -C runtime LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local gdtoa/arithchk gdtoa/qnan gen/gen-types
-          qemu-${{ matrix.config.arch }}-static runtime/gen/gen-types ml-types.h > runtime/gen/ml-types.h
+          qemu-${{ matrix.config.qemu }}-static runtime/gen/gen-types ml-types.h > runtime/gen/ml-types.h
           cp -fpR runtime/gen/ml-types.h runtime/ml-types.h
-          qemu-${{ matrix.config.arch }}-static runtime/gen/gen-types c-types.h > runtime/gen/c-types.h
+          qemu-${{ matrix.config.qemu }}-static runtime/gen/gen-types c-types.h > runtime/gen/c-types.h
           cp -fpR runtime/gen/c-types.h runtime/c-types.h
-          qemu-${{ matrix.config.arch }}-static runtime/gen/gen-types c-types.sml > runtime/gen/c-types.sml
-          qemu-${{ matrix.config.arch }}-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
-          qemu-${{ matrix.config.arch }}-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
+          qemu-${{ matrix.config.qemu }}-static runtime/gen/gen-types c-types.sml > runtime/gen/c-types.sml
+          qemu-${{ matrix.config.qemu }}-static runtime/gdtoa/arithchk > runtime/gdtoa/arith.h
+          qemu-${{ matrix.config.qemu }}-static runtime/gdtoa/qnan > runtime/gdtoa/gd_qnan.h
           PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local dirs
           PATH="$(pwd)/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local runtime
           cp -fpR build/lib/mlton/targets/${{ matrix.config.arch }}-linux-musl boot/lib/mlton/targets/
