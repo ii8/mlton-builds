@@ -67,7 +67,7 @@ jobs:
           make \
             LDFLAGS=-static WITH_GMP_DIR=/usr/local \
             CC=${{ matrix.config.arch }}-linux-musl-gcc AR=${{ matrix.config.arch }}-linux-musl-gcc-ar RANLIB=${{ matrix.config.arch }}-linux-musl-gcc-ranlib \
-            OLD_MLTON_COMPILE_ARGS="-cc ${{ matrix.config.arch }}-linux-musl-gcc -cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
+            OLD_MLTON_COMPILE_ARGS="-codegen c -cc ${{ matrix.config.arch }}-linux-musl-gcc -cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
             all
 
           mv Makefile.binary build/Makefile
