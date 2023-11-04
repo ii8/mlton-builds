@@ -73,7 +73,7 @@ jobs:
           cd gmp-6.3.0
           ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
-          # make check
+          make check
           sudo make install
 
       - name: Install bootstrap mlton
