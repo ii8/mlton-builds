@@ -48,8 +48,8 @@ jobs:
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.config.arch }}-linux-musl-native.tgz
           tar -xf ${{ matrix.config.arch }}-linux-musl-native.tgz
           rm ${{ matrix.config.arch }}-linux-musl-native.tgz
-          sudo cp -fpr ${{ matrix.config.arch }}-linux-musl-native/* /usr/local/
-          
+          sudo cp -fpr ${{ matrix.config.arch }}-linux-musl-native/* /usr/
+
       - name: Install gmp
         run: |
           curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
