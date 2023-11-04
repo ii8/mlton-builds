@@ -74,7 +74,7 @@ jobs:
           cp ../runtime/platform/linux.h src/runtime/platform/linux.h
           PATH="$(pwd)/bin:$PATH" make -C src LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local dirs
           PATH="$(pwd)/bin:$PATH" make -C src LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local runtime
-          cp -fpR src/build/mlton/targets/${{ matrix.config.arch }}-linux-musl lib/mlton/targets/
+          cp -fpR src/build/lib/mlton/targets/${{ matrix.config.arch }}-linux-musl lib/mlton/targets/
 
       - name: Build MLton
         run: |
