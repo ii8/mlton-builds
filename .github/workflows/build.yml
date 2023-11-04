@@ -24,6 +24,7 @@ jobs:
           - { name: powerpc, alt: powerpc }
           - { name: riscv64, alt: riscv }
         libc: [ gnu, musl ]
+        exclude: [ { arch.name: x86_64, libc: gnu } ]
 
     runs-on: ubuntu-latest
 
