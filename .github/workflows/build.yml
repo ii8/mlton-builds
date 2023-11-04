@@ -13,7 +13,6 @@ on:
         required: true
         type: string
 
-
 jobs:
   native:
     strategy:
@@ -64,11 +63,11 @@ jobs:
 
       - name: Build MLton
         run: |
-          PATH="$(pwd)/boot/bin:$PATH" \
+          PATH="$(pwd)/boot/bin:/usr/local/bin:$PATH" \
           make \
             LDFLAGS=-static WITH_GMP_DIR=/usr/local \
             CC=${{ matrix.config.arch }}-linux-musl-gcc AR=${{ matrix.config.arch }}-linux-musl-gcc-ar RANLIB=${{ matrix.config.arch }}-linux-musl-gcc-ranlib \
-            OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-flinker-output=exec -static -L/usr/local/lib'" \
+            OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
             all
 
           mv Makefile.binary build/Makefile
