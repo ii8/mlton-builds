@@ -70,7 +70,7 @@ jobs:
           curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117.src.tgz
           tar xzf mlton-20210117.src.tgz
           rm mlton-20210117.src.tgz
-          mv mlton-20210117.src src
+          mv mlton-20210117 src
           cp ../runtime/platform/linux.h src/lib/mlton/include/platform/linux.h
           PATH="$(pwd)/bin:$PATH" make -C src LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local dirs
           PATH="$(pwd)/bin:$PATH" make -C src LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.config.arch }}-linux-musl TARGET_ARCH=${{ matrix.config.arch_group }} WITH_GMP_DIR=/usr/local runtime
