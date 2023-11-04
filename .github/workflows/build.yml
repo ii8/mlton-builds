@@ -52,6 +52,7 @@ jobs:
         run: |
           sudo apt-get install gcc-10-${{ matrix.arch.name }}-linux-gnu \
                              binutils-${{ matrix.arch.name }}-linux-gnu
+          sudo update-alternatives
 
       - name: Install toolchain (buildroot)
         if: ${{ false }}
