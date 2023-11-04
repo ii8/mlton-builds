@@ -19,10 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-          - { name: x86_64, alt: amd64, cpu: x86_64 }
-          - { name: aarch64, alt: arm64, cpu: aarch64 }
-          - { name: powerpc, alt: powerpc, cpu: powerpc-440fp }
-          - { name: riscv64, alt: riscv, cpu: riscv64-lp64d }
+          - { name: x86_64, alt: amd64, dl: x86-64 }
+          - { name: aarch64, alt: arm64, dl: aarch64 }
+          - { name: powerpc, alt: powerpc, dl: powerpc-440fp }
+          - { name: riscv64, alt: riscv, dl: riscv64-lp64d }
         libc: [ glibc, musl, uclibc ]
         toolchain_version: [ stable-2023.08-1 ]
 
@@ -46,14 +46,15 @@ jobs:
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-musl-cross.tgz
           tar -xf ${{ matrix.arch.name }}-linux-musl-cross.tgz
           rm ${{ matrix.arch.name }}-linux-musl-cross.tgz
-          sudo cp -fpr ${{ matrix.arch.name }}-linux-musl-cross/* /usr/local/
+          sudo cp -fpr ${{ matrix.arch.name }}-linux-musl-cross/* /usr/cross/
 
       - name: Install toolchain (buildroot)
         run: |
-          curl -sOL https://toolchains.bootlin.com/downloads/releases/toolchains/${{ matrix.arch.cpu }}/tarballs/${{ matrix.arch.cpu }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
-          tar -xf ${{ matrix.arch.cpu }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
-          rm ${{ matrix.arch.cpu }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
-          sudo cp -fpr ${{ matrix.arch.cpu }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}/* /usr/local/
+          curl -sOL https://toolchains.bootlin.com/downloads/releases/toolchains/${{ matrix.arch.dl }}/tarballs/${{ matrix.arch.dl }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
+          tar -xf ${{ matrix.arch.dl }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
+          rm ${{ matrix.arch.dl }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
+          sudo mkdir -p /usr/cross
+          sudo cp -fpr ${{ matrix.arch.dl }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}/* /usr/cross/
 
       - name: Install gmp
         run: |
@@ -61,7 +62,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux
+          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux --prefix=/usr/cross
           make
           # make check
           sudo make install
@@ -85,15 +86,15 @@ jobs:
           mv mlton-20210117 src
           cp ../runtime/platform/linux.h src/runtime/platform/linux.h
           cd src
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local dirs
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local runtime
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/cross dirs
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/cross runtime
           cp -fpR src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux lib/mlton/targets/
 
       - name: Build target runtime (new)
         if: ${{ true }}
         run: |
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local dirs
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local runtime
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/cross dirs
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/cross runtime
           cp -fpR build/lib/mlton/targets/${{ matrix.arch.name }}-linux boot/lib/mlton/targets/
 
       - name: Build MLton
@@ -102,7 +103,7 @@ jobs:
           make \
             BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} \
-            OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
+            OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/cross/include -link-opt '-static -L/usr/cross/lib'" \
             dirs runtime compiler script basis-no-check libraries-no-check tools
 
           mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux build/lib/mlton/targets/self
