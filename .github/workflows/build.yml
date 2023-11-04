@@ -163,5 +163,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: mlton-${{ matrix.ref }}.${{ matrix.config.arch }}-linux
+          name: mlton-${{ inputs.ref }}.${{ matrix.config.arch }}-linux
           path: ./*.tgz
