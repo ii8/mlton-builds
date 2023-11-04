@@ -50,9 +50,8 @@ jobs:
       - name: Install toolchain (glibc)
         if: ${{ matrix.libc == 'gnu' }}
         run: |
-          sudo apt-get install gcc-10-${{ matrix.arch.name }}-linux-gnu \
-                             binutils-${{ matrix.arch.name }}-linux-gnu
-          sudo update-alternatives
+          sudo apt-get install gcc-${{ matrix.arch.name }}-linux-gnu \
+                          binutils-${{ matrix.arch.name }}-linux-gnu
 
       - name: Install toolchain (buildroot)
         if: ${{ false }}
