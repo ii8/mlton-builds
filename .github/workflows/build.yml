@@ -3,10 +3,16 @@ name: build
 on:
   workflow_dispatch:
     inputs:
+      repo:
+        description: 'repo'
+        required: true
+        default: 'MLton'
+        type: string
       ref:
         description: 'git ref'
         required: true
         type: string
+
 
 jobs:
   native:
@@ -22,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: MLton/mlton
+          repository: ${{ inputs.repo }}/mlton
           ref: refs/heads/${{ inputs.ref }}
           
       - name: Remove system gcc
