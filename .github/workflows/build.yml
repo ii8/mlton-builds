@@ -18,7 +18,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ { name: x86_64, alt: amd64 }, { name: aarch64, alt: arm64 }, { name: powerpc, alt: powerpc } ]
+        arch:
+          - { name: x86_64, alt: amd64, cpu: x86_64 }
+          - { name: aarch64, alt: arm64, cpu: aarch64 }
+          - { name: powerpc, alt: powerpc, cpu: powerpc-440fp }
+          - { name: riscv64, alt: riscv, cpu: riscv64-lp64d }
+        libc: [ glibc, musl, uclibc ]
+        toolchain_version: [ stable-2023.08-1 ]
 
     runs-on: ubuntu-latest
 
@@ -34,12 +40,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install libgmp-dev qemu-user-static
 
-      - name: Install toolchain
+      - name: Install toolchain (musl.cc)
+        if: ${{ false }}
         run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-musl-cross.tgz
           tar -xf ${{ matrix.arch.name }}-linux-musl-cross.tgz
           rm ${{ matrix.arch.name }}-linux-musl-cross.tgz
           sudo cp -fpr ${{ matrix.arch.name }}-linux-musl-cross/* /usr/local/
+
+      - name: Install toolchain (buildroot)
+        run: |
+          curl -sOL https://toolchains.bootlin.com/downloads/releases/toolchains/${{ matrix.arch.cpu }}/tarballs/${{ matrix.arch.cpu }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
+          tar -xf ${{ matrix.arch.cpu }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
+          rm ${{ matrix.arch.cpu }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
+          sudo cp -fpr ${{ matrix.arch.cpu }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}/* /usr/local/
 
       - name: Install gmp
         run: |
@@ -47,7 +61,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux-musl
+          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux
           make
           # make check
           sudo make install
@@ -55,7 +69,7 @@ jobs:
       - name: Install bootstrap mlton
         run: |
           curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117-1.amd64-linux-glibc2.31.tgz
-          tar xzf mlton-20210117-1.amd64-linux-glibc2.31.tgz --exclude='*/share'
+          tar -xf mlton-20210117-1.amd64-linux-glibc2.31.tgz --exclude='*/share'
           rm mlton-20210117-1.amd64-linux-glibc2.31.tgz
           mv mlton-20210117-1.amd64-linux-glibc2.31 boot
           # Backport fixes
@@ -71,33 +85,33 @@ jobs:
           mv mlton-20210117 src
           cp ../runtime/platform/linux.h src/runtime/platform/linux.h
           cd src
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-musl TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local dirs
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-musl TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local runtime
-          cp -fpR src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux-musl lib/mlton/targets/
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local dirs
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local runtime
+          cp -fpR src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux lib/mlton/targets/
 
       - name: Build target runtime (new)
         if: ${{ true }}
         run: |
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-musl TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local dirs
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux-musl TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local runtime
-          cp -fpR build/lib/mlton/targets/${{ matrix.arch.name }}-linux-musl boot/lib/mlton/targets/
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local dirs
+          PATH="${{ github.workspace }}/boot/bin:$PATH" make LDFLAGS=-static BOOTSTRAP_STYLE=0 TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} WITH_GMP_DIR=/usr/local runtime
+          cp -fpR build/lib/mlton/targets/${{ matrix.arch.name }}-linux boot/lib/mlton/targets/
 
       - name: Build MLton
         run: |
           PATH="$(pwd)/boot/bin:$PATH" \
           make \
             BOOTSTRAP_STYLE=0 \
-            TARGET=${{ matrix.arch.name }}-linux-musl TARGET_ARCH=${{ matrix.arch.alt }} \
+            TARGET=${{ matrix.arch.name }}-linux TARGET_ARCH=${{ matrix.arch.alt }} \
             OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
             dirs runtime compiler script basis-no-check libraries-no-check tools
 
-          mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-musl build/lib/mlton/targets/self
+          mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux build/lib/mlton/targets/self
           mv Makefile.binary build/Makefile
-          mv build mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux
-          tar czvf mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux.tgz mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux
+          mv build mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
+          tar czvf mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tgz mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux
+          name: mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           path: ./*.tgz
