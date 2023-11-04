@@ -91,7 +91,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: MLton/mlton
+          repository: ${{ inputs.repo }}/mlton
           ref: refs/heads/${{ inputs.ref }}
 
       - name: Install system prerequisites
