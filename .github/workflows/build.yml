@@ -112,10 +112,9 @@ jobs:
             mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} build/lib/mlton/targets/self
 
       - name: Test
-        run: ./bin/regression -codegen c \
-                              -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
-                              -cc-opt -I/usr/local/include \
-                              -link-opt '-static -L/usr/local/lib'
+        run: |
+          ./bin/regression -verbose 1 \
+                           -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc
 
       - name: Package
         run: |
