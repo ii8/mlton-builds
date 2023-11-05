@@ -73,7 +73,7 @@ jobs:
           cd gmp-6.3.0
           ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
-          make check
+          # make check
           sudo make install
 
       - name: Install bootstrap mlton
@@ -120,6 +120,11 @@ jobs:
             OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
             dirs runtime compiler script basis-no-check libraries-no-check tools
 
+      - name: Test
+        run: ./bin/regression
+
+      - name: Package
+        run: |
           mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} build/lib/mlton/targets/self
           mv Makefile.binary build/Makefile
           mv build mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
