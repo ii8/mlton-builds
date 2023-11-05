@@ -22,8 +22,8 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-          # - { name: i686, alt: x86 }
-          - { name: x86_64, alt: amd64 }
+          - { name: i686, alt: x86 }
+          # - { name: x86_64, alt: amd64 }
           # - { name: aarch64, alt: arm64 }
           # - { name: powerpc, alt: powerpc }
           # - { name: riscv64, alt: riscv }
