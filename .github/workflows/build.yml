@@ -45,8 +45,9 @@ jobs:
         run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-musl-cross.tgz
           tar -xf ${{ matrix.arch.name }}-linux-musl-cross.tgz
-          rm ${{ matrix.arch.name }}-linux-musl-cross.tgz
           sudo cp -fpr ${{ matrix.arch.name }}-linux-musl-cross/* /usr/local/
+          rm -r ${{ matrix.arch.name }}-linux-musl-cross \
+                ${{ matrix.arch.name }}-linux-musl-cross.tgz
 
       - name: Install toolchain (glibc)
         if: ${{ matrix.libc == 'gnu' }}
@@ -59,52 +60,52 @@ jobs:
         run: |
           curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
-          rm gmp-6.3.0.tar.xz
           cd gmp-6.3.0
           ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
           # make check
           sudo make install
+          cd ${{ github.workspace }}
+          rm -r gmp-6.3.0 gmp-6.3.0.tar.xz
 
       - name: Install bootstrap mlton
         run: |
           curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117-1.amd64-linux-glibc2.31.tgz
           tar -xf mlton-20210117-1.amd64-linux-glibc2.31.tgz --exclude='*/share'
           rm mlton-20210117-1.amd64-linux-glibc2.31.tgz
-          mv mlton-20210117-1.amd64-linux-glibc2.31 boot
+          sudo mv mlton-20210117-1.amd64-linux-glibc2.31 /opt/boot
           # Backport fixes
-          cp runtime/platform/linux.h boot/lib/mlton/include/platform/linux.h
+          sudo cp -p runtime/platform/linux.h /opt/boot/lib/mlton/include/platform/linux.h
 
       - name: Build target runtime (old)
         if: ${{ false }}
         run: |
-          cd boot
           curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117.src.tgz
           tar xzf mlton-20210117.src.tgz
           rm mlton-20210117.src.tgz
           mv mlton-20210117 src
-          cp ../runtime/platform/linux.h src/runtime/platform/linux.h
+          cp runtime/platform/linux.h src/runtime/platform/linux.h
           cd src
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make \
+          PATH="/opt/boot/bin:$PATH" make \
             LDFLAGS=-static BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} \
             WITH_GMP_DIR=/usr/local \
             dirs runtime
-          cp -fpR src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} lib/mlton/targets/
+          sudo cp -fpR src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
 
       - name: Build target runtime (new)
         if: ${{ true }}
         run: |
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make \
+          PATH="/opt/boot/bin:$PATH" make \
             LDFLAGS=-static BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} \
             WITH_GMP_DIR=/usr/local \
             dirs runtime
-          cp -fpR build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} boot/lib/mlton/targets/
+          sudo cp -fpR build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
 
       - name: Build MLton
         run: |
-          PATH="${{ github.workspace }}/boot/bin:$PATH" make \
+          PATH="/opt/boot/bin:$PATH" make \
             BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} \
             OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
