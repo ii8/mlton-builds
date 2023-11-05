@@ -40,7 +40,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install qemu-user-static
 
-      - name: Install toolchain (musl.cc)
+      - name: Install toolchain (musl)
         if: ${{ matrix.libc == 'musl' }}
         run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-musl-cross.tgz
@@ -54,16 +54,6 @@ jobs:
           sudo apt-get install gcc-${{ matrix.arch.name }}-linux-gnu \
                                binutils-${{ matrix.arch.name }}-linux-gnu
           sudo ln -s /usr/bin/${{ matrix.arch.name }}-linux-gnu-gcc /usr/bin/${{ matrix.arch.name }}-linux-gnu-cc
-
-      - name: Install toolchain (buildroot)
-        if: ${{ false }}
-        run: |
-          curl -sOL https://toolchains.bootlin.com/downloads/releases/toolchains/${{ matrix.arch.dl }}/tarballs/${{ matrix.arch.dl }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
-          tar -xf ${{ matrix.arch.dl }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
-          rm ${{ matrix.arch.dl }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}.tar.bz2
-          sudo mkdir -p /opt/cross
-          sudo cp -fpr ${{ matrix.arch.dl }}--${{ matrix.libc }}--${{ matrix.toolchain_version }}/* /opt/cross/
-          echo "/opt/cross/bin" >> $GITHUB_PATH
 
       - name: Install gmp
         run: |
@@ -122,7 +112,10 @@ jobs:
             mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} build/lib/mlton/targets/self
 
       - name: Test
-        run: ./bin/regression
+        run: ./bin/regression -codegen c \
+                              -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
+                              -cc-opt -I/usr/local/include \
+                              -link-opt '-static -L/usr/local/lib'
 
       - name: Package
         run: |
