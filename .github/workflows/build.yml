@@ -114,7 +114,10 @@ jobs:
       - name: Test
         run: |
           ./bin/regression -verbose 1 \
-                           -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc
+                           -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
+                           -cc-opt -I/usr/local/include \
+                           -link-opt -L/usr/local/lib \
+                           -link-opt -static
 
       - name: Package
         run: |
