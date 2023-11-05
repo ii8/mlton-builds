@@ -21,15 +21,15 @@ jobs:
         arch:
           # - { name: i686, alt: x86 }
           # - { name: x86_64, alt: amd64 }
-          # - { name: aarch64, alt: arm64 }
+          - { name: aarch64, alt: arm64 }
           # - { name: powerpc, alt: powerpc }
           # - { name: powerpc64, alt: powerpc64 }
           # - { name: riscv32, alt: riscv }
-          - { name: riscv64, alt: riscv }
+          # - { name: riscv64, alt: riscv }
         libc: [ gnu, musl ]
-        #include:
-        #  - { arch: { name: arm, alt: arm }, libc: gnueabi }
-        #  - { arch: { name: arm, alt: arm }, libc: musleabi }
+        include:
+          - { arch: { name: arm, alt: arm }, libc: gnueabi }
+          - { arch: { name: arm, alt: arm }, libc: musleabi }
         exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
 
     runs-on: ubuntu-latest
@@ -72,10 +72,10 @@ jobs:
           curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          export ${{ matrix.arch.name == 'arm' && 'host_cpu=armv6l ' || 'NOTHING' }}
           ./configure --disable-shared \
                       ${{ matrix.arch.name == 'i686' && '--with-pic' || '' }} \
                       ${{ startsWith(matrix.arch.name, 'powerpc') && '--disable-assembly' || '' }} \
+                      ${{ matrix.arch.name == 'arm' && 'CFLAGS="-marm -O2 -pedantic -fomit-frame-pointer"' || '' }} \
                       --build=x86_64-linux-gnu \
                       --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
