@@ -30,7 +30,7 @@ jobs:
         include:
           - { arch: { name: arm, alt: arm }, libc: gnueabi }
           - { arch: { name: arm, alt: arm }, libc: musleabi }
-        # exclude: [ { arch: { name: x86_64, alt: amd64 }, libc: gnu } ]
+        exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
 
     runs-on: ubuntu-latest
 
