@@ -55,22 +55,21 @@ jobs:
         run: |
           sudo apt-get install gcc-${{ matrix.arch.name }}-linux-gnu \
                                binutils-${{ matrix.arch.name }}-linux-gnu
-          sudo ln -s /usr/bin/${{ matrix.arch.name }}-linux-gnu-gcc /usr/bin/${{ matrix.arch.name }}-linux-gnu-cc
 
-      - name: Use preinstalled toolchain (x86_64 glibc)
-        if: ${{ matrix.libc == 'gnu' && matrix.arch.name == 'x86_64' }}
+      - name: Link cc to gcc
+        if: ${{ matrix.libc == 'gnu' }}
         run: |
-          sudo ln -s /usr/bin/gcc /usr/bin/${{ matrix.arch.name }}-linux-gnu-cc
-          sudo ln -s /usr/bin/gcc /usr/bin/${{ matrix.arch.name }}-linux-gnu-gcc
-          sudo ln -s /usr/bin/ar /usr/bin/${{ matrix.arch.name }}-linux-gnu-ar
-          sudo ln -s /usr/bin/ranlib /usr/bin/${{ matrix.arch.name }}-linux-gnu-ranlib
+          sudo ln -s /usr/bin/${{ matrix.arch.name }}-linux-gnu-gcc \
+                     /usr/bin/${{ matrix.arch.name }}-linux-gnu-cc
 
       - name: Install gmp
         run: |
           curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          ./configure --disable-shared --build=x86_64-linux-gnu --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
+          ./configure --disable-shared \
+                      --build=x86_64-linux-gnu \
+                      --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
           # make check
           sudo make install
