@@ -70,7 +70,7 @@ jobs:
           curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          ./configure --disable-shared \
+          ./configure ${{ inputs.static && '--disable-shared' || '--disable-static' }} \
                       --build=x86_64-linux-gnu \
                       --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
