@@ -12,6 +12,9 @@ on:
         description: 'git ref'
         required: true
         type: string
+      static:
+        description: 'static'
+        type: boolean
 
 jobs:
   build:
@@ -95,7 +98,7 @@ jobs:
           cp runtime/platform/linux.h src/runtime/platform/linux.h
           cd src
           PATH="/opt/boot/bin:$PATH" make \
-            LDFLAGS=-static BOOTSTRAP_STYLE=0 \
+            ${{ inputs.static && 'LDFLAGS=-static' || '' }} BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} \
             WITH_GMP_DIR=/usr/local \
             dirs runtime
@@ -105,7 +108,7 @@ jobs:
         if: ${{ true }}
         run: |
           PATH="/opt/boot/bin:$PATH" make \
-            LDFLAGS=-static BOOTSTRAP_STYLE=0 \
+            ${{ inputs.static && 'LDFLAGS=-static' || '' }} BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} \
             WITH_GMP_DIR=/usr/local \
             dirs runtime
@@ -116,7 +119,7 @@ jobs:
           PATH="/opt/boot/bin:$PATH" make \
             BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} \
-            OLD_MLTON_COMPILE_ARGS="-codegen c -cc-opt -I/usr/local/include -link-opt '-static -L/usr/local/lib'" \
+            OLD_MLTON_COMPILE_ARGS="-codegen c -cc-opt -I/usr/local/include -link-opt '${{ inputs.static && '-static' || '' }} -L/usr/local/lib'" \
             dirs runtime compiler script basis-no-check libraries-no-check tools
           mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} build/lib/mlton/targets/self
 
@@ -126,7 +129,7 @@ jobs:
                            -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
                            -cc-opt -I/usr/local/include \
                            -link-opt -L/usr/local/lib \
-                           -link-opt -static
+                           ${{ inputs.static && '-link-opt -static' || '' }}
 
       - name: Package
         run: |
