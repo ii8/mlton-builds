@@ -51,11 +51,19 @@ jobs:
                 ${{ matrix.arch.name }}-linux-musl-cross.tgz
 
       - name: Install toolchain (glibc)
-        if: ${{ matrix.libc == 'gnu' }}
+        if: ${{ matrix.libc == 'gnu' && matrix.arch.name != 'x86_64' }}
         run: |
           sudo apt-get install gcc-${{ matrix.arch.name }}-linux-gnu \
                                binutils-${{ matrix.arch.name }}-linux-gnu
           sudo ln -s /usr/bin/${{ matrix.arch.name }}-linux-gnu-gcc /usr/bin/${{ matrix.arch.name }}-linux-gnu-cc
+
+      - name: Use preinstalled toolchain (x86_64 glibc)
+        if: ${{ matrix.libc == 'gnu' && matrix.arch.name == 'x86_64' }}
+        run: |
+          sudo ln -s /usr/bin/gcc /usr/bin/${{ matrix.arch.name }}-linux-gnu-cc
+          sudo ln -s /usr/bin/gcc /usr/bin/${{ matrix.arch.name }}-linux-gnu-gcc
+          sudo ln -s /usr/bin/ar /usr/bin/${{ matrix.arch.name }}-linux-gnu-ar
+          sudo ln -s /usr/bin/ranlib /usr/bin/${{ matrix.arch.name }}-linux-gnu-ranlib
 
       - name: Install gmp
         run: |
