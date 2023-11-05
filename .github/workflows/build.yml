@@ -130,4 +130,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
-          path: ./*.tgz
+          path: mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tgz
