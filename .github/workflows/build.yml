@@ -68,6 +68,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
           ./configure --disable-shared \
+                      --with-pic \
                       --build=x86_64-linux-gnu \
                       --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
