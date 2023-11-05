@@ -72,7 +72,7 @@ jobs:
           curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          ${{ matrix.arch.name == 'arm' && 'CFLAGS="-m32 -O2 -pedantic -fomit-frame-pointer" \ ' || '' }}
+          export ${{ matrix.arch.name == 'arm' && 'CFLAGS="-m32 -O2 -pedantic -fomit-frame-pointer" ' || 'NOTHING' }}
           ./configure --disable-shared \
                       ${{ matrix.arch.name == 'i686' && '--with-pic' || '' }} \
                       ${{ startsWith(matrix.arch.name, 'powerpc') && '--disable-assembly' || '' }} \
