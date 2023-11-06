@@ -32,7 +32,7 @@ jobs:
         #  - { name: riscv64, alt: riscv }
           - { name: mips, alt: mips }
         libc: [ gnu, musl ]
-        include:
+        #include:
         #  - { arch: { name: arm, alt: arm }, libc: gnueabihf }
         #  - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
         #exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
