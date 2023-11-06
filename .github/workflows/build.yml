@@ -135,6 +135,7 @@ jobs:
 
       - name: Status
         run: |
+          ulimit -c unlimited
           git status
           file build/lib/mlton/mlton-compile
           build/bin/mlton -show path-map
