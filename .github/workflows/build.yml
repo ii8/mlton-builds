@@ -155,7 +155,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: coredump
+          name: coredump-${{ matrix.arch.name }}-${{ matrix.libc }}
           path: /var/lib/apport/coredump/*
 
       - name: Package
