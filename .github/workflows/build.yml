@@ -138,13 +138,18 @@ jobs:
           file build/lib/mlton/mlton-compile
           build/bin/mlton -show path-map
 
+      - name: Limit tests
+        run: |
+          mv regression/id.sml .
+          rm -r regression/*
+          mv id.sml regression/
+          mv benchmark/tests/raytrace.sml .
+          rm -r benchmark/tests/*
+          mv raytrace.sml benchmark/tests/
+
       - name: Test
         run: |
           ulimit -c unlimited
-          rm -r regression/*
-          mv benchmark/tests lol
-          mkdir benchmark/tests
-          mv lol/raytrace.sml benchmark/tests/raytrace.sml
           ./bin/regression -verbose 1 \
                            -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
                            -cc-opt -I/usr/local/include \
