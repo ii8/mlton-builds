@@ -28,8 +28,8 @@ jobs:
           # - { name: riscv64, alt: riscv }
         # libc: [ gnu, musl ]
         include:
-          - { arch: { name: arm, alt: arm }, libc: gnueabihf }
-          - { arch: { name: arm, alt: arm }, libc: musleabihf, gmpopt: '--with-pic' }
+          # - { arch: { name: arm, alt: arm }, libc: gnueabihf }
+          - { arch: { name: arm, alt: arm }, libc: musleabihf }
         # exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
 
     runs-on: ubuntu-latest
@@ -73,7 +73,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
           ./configure --disable-shared \
-                      ${{ matrix.arch.gmpopt }} \
+                      ${{ matrix.arch.name == 'arm' && '--with-pic' }} \
                       ${{ startsWith(matrix.arch.name, 'powerpc') && '--disable-assembly' || '' }} \
                       --build=x86_64-linux-gnu \
                       --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
