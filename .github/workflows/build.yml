@@ -132,6 +132,12 @@ jobs:
             dirs runtime compiler script basis-no-check libraries-no-check tools
           mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} build/lib/mlton/targets/self
 
+      - name: Status
+        run: |
+          git status
+          file build/lib/mlton/mlton-compile
+          build/bin/mlton -show path-map
+
       - name: Test
         run: |
           ulimit -c unlimited
