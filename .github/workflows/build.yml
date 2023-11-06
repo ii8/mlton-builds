@@ -28,7 +28,7 @@ jobs:
           # - { name: riscv64, alt: riscv }
         # libc: [ gnu, musl ]
         include:
-          # - { arch: { name: arm, alt: arm }, libc: gnueabihf, gmpopt: '--with-pic' }
+          - { arch: { name: arm, alt: arm }, libc: gnueabihf }
           - { arch: { name: arm, alt: arm }, libc: musleabihf, gmpopt: '--with-pic' }
         exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
 
@@ -129,11 +129,19 @@ jobs:
 
       - name: Test
         run: |
+          ulimit -c unlimited
           ./bin/regression -verbose 1 \
                            -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
                            -cc-opt -I/usr/local/include \
                            -link-opt -L/usr/local/lib \
                            -link-opt -static
+
+      - name: Coredump
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coredump
+          path: coredump
 
       - name: Package
         run: |
