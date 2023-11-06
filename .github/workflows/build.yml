@@ -130,6 +130,10 @@ jobs:
       - name: Test
         run: |
           ulimit -c unlimited
+          rm regression/*
+          mv benchmark/tests lol
+          mkdir benchmark/tests
+          mv lol/raytrace.sml benchmark/tests/raytrace.sml
           ./bin/regression -verbose 1 \
                            -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
                            -cc-opt -I/usr/local/include \
