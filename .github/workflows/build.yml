@@ -130,7 +130,7 @@ jobs:
       - name: Test
         run: |
           ulimit -c unlimited
-          rm regression/*
+          rm -r regression/*
           mv benchmark/tests lol
           mkdir benchmark/tests
           mv lol/raytrace.sml benchmark/tests/raytrace.sml
