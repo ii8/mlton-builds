@@ -49,23 +49,23 @@ jobs:
       - name: Install toolchain (musl)
         if: ${{ startsWith(matrix.libc, 'musl') }}
         run: |
-          curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-musl-cross.tgz
-          tar -xf ${{ matrix.arch.name }}-linux-musl-cross.tgz
-          sudo cp -fpr ${{ matrix.arch.name }}-linux-musl-cross/* /usr/local/
-          rm -r ${{ matrix.arch.name }}-linux-musl-cross \
-                ${{ matrix.arch.name }}-linux-musl-cross.tgz
+          curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
+          tar -xf ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
+          sudo cp -fpr ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross/* /usr/local/
+          rm -r ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross \
+                ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
 
       - name: Install toolchain (glibc)
         if: ${{ startsWith(matrix.libc, 'gnu') && matrix.arch.name != 'x86_64' }}
         run: |
-          sudo apt-get install gcc-${{ matrix.arch.name }}-linux-gnu \
-                               binutils-${{ matrix.arch.name }}-linux-gnu
+          sudo apt-get install gcc-${{ matrix.arch.name }}-linux-${{ matrix.libc }} \
+                               binutils-${{ matrix.arch.name }}-linux-${{ matrix.libc }}
 
       - name: Link cc to gcc
         if: ${{ startsWith(matrix.libc, 'gnu') }}
         run: |
-          sudo ln -s /usr/bin/${{ matrix.arch.name }}-linux-gnu-gcc \
-                     /usr/bin/${{ matrix.arch.name }}-linux-gnu-cc
+          sudo ln -s /usr/bin/${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
+                     /usr/bin/${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cc
 
       - name: Install gmp
         run: |
