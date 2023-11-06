@@ -152,7 +152,6 @@ jobs:
         run: |
           ulimit -c unlimited
           ./bin/regression -verbose 1 \
-                           -default-type real32
                            -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
                            -cc-opt -I/usr/local/include \
                            -link-opt -L/usr/local/lib \
