@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         # arch:
-          # - { name: i686, alt: x86 }
+          # - { name: i686, alt: x86, gmpopt: '--with-pic' }
           # - { name: x86_64, alt: amd64 }
           # - { name: aarch64, alt: arm64 }
           # - { name: powerpc, alt: powerpc }
@@ -28,8 +28,8 @@ jobs:
           # - { name: riscv64, alt: riscv }
         # libc: [ gnu, musl ]
         include:
-          # - { arch: { name: arm, alt: arm }, libc: gnueabihf }
-          - { arch: { name: arm, alt: arm }, libc: musleabihf }
+          # - { arch: { name: arm, alt: arm }, libc: gnueabihf, gmpopt: '--with-pic' }
+          - { arch: { name: arm, alt: arm }, libc: musleabihf, gmpopt: '--with-pic' }
         exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
 
     runs-on: ubuntu-latest
@@ -73,7 +73,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
           ./configure --disable-shared \
-                      ${{ contains(['i686', 'arm'], matrix.arch.name) && '--with-pic' || '' }} \
+                      ${{ matrix.arch.gmpopt }} \
                       ${{ startsWith(matrix.arch.name, 'powerpc') && '--disable-assembly' || '' }} \
                       --build=x86_64-linux-gnu \
                       --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
