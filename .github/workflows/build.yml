@@ -31,10 +31,11 @@ jobs:
         #  - { name: riscv32, alt: riscv }
         #  - { name: riscv64, alt: riscv64 }
         #  - { name: mips, alt: mips }
-          - { name: mips64, alt: mips64 }
           - { name: m68k, alt: m68k }
         libc: [ gnu, musl ]
-        #include:
+        include:
+          - { arch: { name: mips64, alt: mips64 }, libc: gnuabi64 }
+          - { arch: { name: mips64, alt: mips64 }, libc: musl }
         #  - { arch: { name: arm, alt: arm }, libc: gnueabihf }
         #  - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
         #exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
