@@ -29,8 +29,10 @@ jobs:
         #  - { name: powerpc, alt: powerpc }
         #  - { name: powerpc64, alt: powerpc64 }
         #  - { name: riscv32, alt: riscv }
-        #  - { name: riscv64, alt: riscv }
-          - { name: mips, alt: mips }
+        #  - { name: riscv64, alt: riscv64 }
+        #  - { name: mips, alt: mips }
+          - { name: mips64, alt: mips64 }
+          - { name: m68k, alt: m68k }
         libc: [ gnu, musl ]
         #include:
         #  - { arch: { name: arm, alt: arm }, libc: gnueabihf }
