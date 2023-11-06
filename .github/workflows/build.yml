@@ -1,8 +1,12 @@
 name: build
+run-name: ${{ inputs.name }}
 
 on:
   workflow_dispatch:
     inputs:
+      name:
+        description: 'name'
+        type: string
       repo:
         description: 'repo'
         required: true
