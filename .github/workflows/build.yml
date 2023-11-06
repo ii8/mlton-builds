@@ -23,17 +23,17 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-          # - { name: i686, alt: x86 }
-          # - { name: x86_64, alt: amd64 }
-          # - { name: aarch64, alt: arm64 }
-          # - { name: powerpc, alt: powerpc }
-          # - { name: powerpc64, alt: powerpc64 }
+          - { name: i686, alt: x86 }
+          - { name: x86_64, alt: amd64 }
+          - { name: aarch64, alt: arm64 }
+          - { name: powerpc, alt: powerpc }
+          - { name: powerpc64, alt: powerpc64 }
           - { name: riscv32, alt: riscv }
-          # - { name: riscv64, alt: riscv }
+          - { name: riscv64, alt: riscv }
         libc: [ gnu, musl ]
-        #include:
-        #  - { arch: { name: arm, alt: arm }, libc: gnueabihf }
-        #  - { arch: { name: arm, alt: arm }, libc: musleabihf }
+        include:
+          - { arch: { name: arm, alt: arm }, libc: gnueabihf }
+          - { arch: { name: arm, alt: arm }, libc: musleabihf }
         exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
 
     runs-on: ubuntu-latest
@@ -78,7 +78,7 @@ jobs:
           cd gmp-6.3.0
           ./configure --disable-shared \
                       ${{ matrix.arch.name == 'i686' && '--with-pic' || '' }} \
-                      ${{ matrix.arch.name == 'arm' && '--with-pic' || '' }} \
+                      ${{ matrix.arch.name == 'arm' && '--with-pic CFLAGS="-march=armv6 -mfpu=vfp -mfloat-abi=hard -O2 -pedantic"' || '' }} \
                       ${{ startsWith(matrix.arch.name, 'powerpc') && '--disable-assembly' || '' }} \
                       --build=x86_64-linux-gnu \
                       --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
@@ -118,6 +118,7 @@ jobs:
         run: |
           PATH="/opt/boot/bin:$PATH" make \
             LDFLAGS=-static BOOTSTRAP_STYLE=0 \
+            ${{ matrix.arch.name == 'arm' && 'CFLAGS="-march=armv6 -mfpu=vfp -mfloat-abi=hard"' || '' }} \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
             WITH_GMP_DIR=/usr/local \
             dirs runtime
@@ -128,7 +129,7 @@ jobs:
           PATH="/opt/boot/bin:$PATH" make \
             BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
-            OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt -L/usr/local/lib -link-opt -static" \
+            OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/include -link-opt -L/usr/local/lib -link-opt -static ${{ matrix.arch.name == 'arm' && '-cc-opt -march=armv6 -cc-opt -mfpu=vfp -cc-opt -mfloat-abi=hard' || '' }}" \
             dirs runtime compiler script basis-no-check libraries-no-check tools
           mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} build/lib/mlton/targets/self
 
