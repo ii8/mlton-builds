@@ -75,7 +75,6 @@ jobs:
           ./configure --disable-shared \
                       ${{ matrix.arch.name == 'i686' && '--with-pic' || '' }} \
                       ${{ startsWith(matrix.arch.name, 'powerpc') && '--disable-assembly' || '' }} \
-                      ${{ matrix.arch.name == 'arm' && 'CFLAGS="-marm -O2 -pedantic -fomit-frame-pointer"' || '' }} \
                       --build=x86_64-linux-gnu \
                       --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
