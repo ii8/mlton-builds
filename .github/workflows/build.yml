@@ -30,7 +30,7 @@ jobs:
         include:
           - { arch: { name: arm, alt: arm }, libc: gnueabihf }
           - { arch: { name: arm, alt: arm }, libc: musleabihf, gmpopt: '--with-pic' }
-        exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
+        # exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
 
     runs-on: ubuntu-latest
 
