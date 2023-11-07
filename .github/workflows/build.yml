@@ -23,11 +23,11 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-        #  - { name: i686, alt: x86 }
-        #  - { name: x86_64, alt: amd64 }
+          - { name: i686, alt: x86 }
+          - { name: x86_64, alt: amd64 }
         #  - { name: aarch64, alt: arm64 }
         #  - { name: powerpc, alt: powerpc }
-        #  - { name: powerpc64, alt: powerpc64 }
+          - { name: powerpc64, alt: powerpc64 }
         #  - { name: riscv32, alt: riscv }
           - { name: riscv64, alt: riscv }
         #  - { name: mips, alt: mips }
@@ -37,7 +37,7 @@ jobs:
           - { arch: { name: mips64, alt: mips }, libc: gnuabi64 }
           - { arch: { name: mips64, alt: mips }, libc: musl }
         #  - { arch: { name: arm, alt: arm }, libc: gnueabihf }
-        #  - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
+          - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
         #exclude: [ { arch: { name: riscv32, alt: riscv }, libc: gnu } ]
 
     runs-on: ubuntu-latest
