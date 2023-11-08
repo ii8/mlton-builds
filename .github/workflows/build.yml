@@ -206,13 +206,12 @@ jobs:
       - name: Package
         run: |
           cd mlton
-          mv Makefile.binary build/Makefile
           mv build mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
-          tar czvf mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tgz \
+          tar czvf mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tar.gz \
                    mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
-          path: mlton/mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tgz
+          path: mlton/mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tar.gz
