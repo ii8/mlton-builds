@@ -89,7 +89,7 @@ jobs:
           GCC_CONFIG += --disable-fixed-point
           GCC_CONFIG += --disable-lto
           GCC_CONFIG += --enable-languages=c
-          EOT
+          EOF
           make
           make install
 
