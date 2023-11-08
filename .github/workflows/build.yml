@@ -22,24 +22,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch:
-          - { name: i686, alt: x86 }
-          - { name: x86_64, alt: amd64 }
-          - { name: aarch64, alt: arm64 }
+        #arch:
+        #  - { name: i686, alt: x86 }
+        #  - { name: x86_64, alt: amd64 }
+        #  - { name: aarch64, alt: arm64 }
           - { name: powerpc, alt: powerpc }
-          - { name: powerpc64, alt: powerpc64 }
-          - { name: riscv32, alt: riscv }
-          - { name: riscv64, alt: riscv }
-          - { name: mips, alt: mips }
-          - { name: m68k, alt: m68k }
+        #  - { name: powerpc64, alt: powerpc64 }
+        #  - { name: riscv32, alt: riscv }
+        #  - { name: riscv64, alt: riscv }
+        #  - { name: mips, alt: mips }
+        #  - { name: m68k, alt: m68k }
         libc: [ gnu, musl ]
         include:
-          - { arch: { name: mips64, alt: mips }, libc: gnuabi64 }
-          - { arch: { name: mips64, alt: mips }, libc: musl }
+        #  - { arch: { name: mips64, alt: mips }, libc: gnuabi64 }
+        #  - { arch: { name: mips64, alt: mips }, libc: musl }
         #  - { arch: { name: arm, alt: arm }, libc: gnueabihf }
           - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
-        exclude:
-          - { arch: { name: riscv32, alt: riscv }, libc: gnu }
+        #exclude:
+        #  - { arch: { name: riscv32, alt: riscv }, libc: gnu }
 
     runs-on: ubuntu-latest
 
@@ -67,13 +67,13 @@ jobs:
       - name: Install toolchain (musl void)
         if: startsWith(matrix.libc, 'musl')
         run: |
-          sudo apt-get install zstd
+          sudo apt-get install tar zstd
           curl -sOL https://repo-de.voidlinux.org/current/cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-0.35_5.x86_64.xbps
-          tar --zstd -xf cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-0.35_5.x86_64.xbps
+          tar -xf cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-0.35_5.x86_64.xbps
           sudo cp -fpr usr/* /usr/local/
           rm -r usr files.plist props.plist *.xbps
           curl -sOL https://repo-de.voidlinux.org/current/cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-libc-0.35_5.x86_64.xbps
-          tar --zstd -xf cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-libc-0.35_5.x86_64.xbps
+          tar -xf cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-libc-0.35_5.x86_64.xbps
           sudo cp -fpr usr/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/* /usr/local/
           rm -r usr files.plist props.plist *.xbps
 
