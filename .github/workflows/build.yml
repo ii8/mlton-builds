@@ -44,11 +44,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout MLton
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repo }}/mlton
           ref: ${{ inputs.ref }}
+          path: mlton
+
+      - name: Checkout musl-cross-make
+        if: startsWith(matrix.libc, 'musl')
+        uses: actions/checkout@v4
+        with:
+          repository: richfelker/musl-cross-make
+          ref: master
+          path: musl-cross-make
 
       - name: Install qemu
         run: |
@@ -64,18 +73,22 @@ jobs:
           rm -r ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross \
                 ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
 
-      - name: Install toolchain (musl void)
+      - name: Install toolchain (musl)
         if: startsWith(matrix.libc, 'musl')
         run: |
-          sudo apt-get install tar zstd
-          curl -sOL https://repo-de.voidlinux.org/current/cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-0.35_5.x86_64.xbps
-          tar -xf cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-0.35_5.x86_64.xbps
-          sudo cp -fpr usr/* /usr/local/
-          rm -r usr files.plist props.plist *.xbps
-          curl -sOL https://repo-de.voidlinux.org/current/cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-libc-0.35_5.x86_64.xbps
-          tar -xf cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-libc-0.35_5.x86_64.xbps
-          sudo cp -fpr usr/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/usr/* /usr/local/
-          rm -r usr files.plist props.plist *.xbps
+          cd musl-cross-make
+          cat <<EOF > config.mak
+          TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
+          OUTPUT=/usr/local
+          COMMON_CONFIG += --disable-nls
+          GCC_CONFIG += --disable-libquadmath --disable-decimal-float
+          GCC_CONFIG += --disable-libitm
+          GCC_CONFIG += --disable-fixed-point
+          GCC_CONFIG += --disable-lto
+          GCC_CONFIG += --enable-languages=c
+          EOT
+          make
+          make install
 
       - name: Install toolchain (glibc)
         if: ${{ startsWith(matrix.libc, 'gnu') && matrix.arch.name != 'x86_64' }}
@@ -113,7 +126,7 @@ jobs:
           rm mlton-20210117-1.amd64-linux-glibc2.31.tgz
           sudo mv mlton-20210117-1.amd64-linux-glibc2.31 /opt/boot
           # Backport fixes
-          sudo cp -p runtime/platform/linux.h /opt/boot/lib/mlton/include/platform/linux.h
+          sudo cp -p mlton/runtime/platform/linux.h /opt/boot/lib/mlton/include/platform/linux.h
 
       - name: Build target runtime (old)
         if: ${{ false }}
@@ -134,6 +147,7 @@ jobs:
       - name: Build target runtime (new)
         if: ${{ true }}
         run: |
+          cd mlton
           PATH="/opt/boot/bin:$PATH" make \
             LDFLAGS=-static BOOTSTRAP_STYLE=0 \
             ${{ matrix.arch.name == 'armv7l' && 'CFLAGS="-march=armv7-a -mfpu=vfpv3 -mfloat-abi=hard"' || '' }} \
@@ -144,6 +158,7 @@ jobs:
 
       - name: Build MLton
         run: |
+          cd mlton
           PATH="/opt/boot/bin:$PATH" make \
             BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
@@ -153,12 +168,14 @@ jobs:
 
       - name: Status
         run: |
+          cd mlton
           ulimit -c unlimited
           file build/lib/mlton/mlton-compile
           build/bin/mlton -show path-map
 
       - name: Limit tests
         run: |
+          cd mlton
           mv regression/real.sml .
           rm -r regression/*
           mv real.sml regression/
@@ -168,6 +185,7 @@ jobs:
 
       - name: Test
         run: |
+          cd mlton
           ulimit -c unlimited
           ./bin/regression -verbose 1 \
                            -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
@@ -181,11 +199,12 @@ jobs:
         with:
           name: coredump-${{ matrix.arch.name }}-${{ matrix.libc }}
           path: |
-            build/lib/mlton/mlton-compile
+            mlton/build/lib/mlton/mlton-compile
             /var/lib/apport/coredump/*
 
       - name: Package
         run: |
+          cd mlton
           mv Makefile.binary build/Makefile
           mv build mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           tar czvf mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tgz \
@@ -195,4 +214,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
-          path: mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tgz
+          path: mlton/mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tgz
