@@ -91,7 +91,7 @@ jobs:
           GCC_CONFIG += --enable-languages=c
           EOF
           make
-          make install
+          sudo make install
 
       - name: Install toolchain (glibc)
         if: ${{ startsWith(matrix.libc, 'gnu') && matrix.arch.name != 'x86_64' }}
