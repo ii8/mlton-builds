@@ -59,6 +59,9 @@ jobs:
           ref: master
           path: musl-cross-make
 
+      - name: ls
+        run: ls -l
+
       - name: Install qemu
         run: |
           sudo apt-get update
