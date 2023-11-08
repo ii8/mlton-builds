@@ -70,11 +70,11 @@ jobs:
           sudo apt-get install tar zstd
           curl -sOL https://repo-de.voidlinux.org/current/cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-0.35_5.x86_64.xbps
           tar -xf cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-0.35_5.x86_64.xbps
-          sudo cp -fpr usr/* /usr/local/
+          sudo cp -fpr usr/{bin,lib} /usr/local/
           rm -r usr files.plist props.plist *.xbps
           curl -sOL https://repo-de.voidlinux.org/current/cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-libc-0.35_5.x86_64.xbps
           tar -xf cross-${{ matrix.arch.name }}-linux-${{ matrix.libc }}-libc-0.35_5.x86_64.xbps
-          sudo cp -fpr usr/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/* /usr/local/
+          sudo cp -fpr usr/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/{bin,include,lib} /usr/local/
           rm -r usr files.plist props.plist *.xbps
 
       - name: Install toolchain (glibc)
