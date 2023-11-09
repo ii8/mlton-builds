@@ -23,23 +23,23 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-        #  - { name: i686, alt: x86 }
-        #  - { name: x86_64, alt: amd64 }
-        #  - { name: aarch64, alt: arm64 }
-        #  - { name: powerpc, alt: powerpc }
-        #  - { name: powerpc64, alt: powerpc64 }
-        #  - { name: riscv32, alt: riscv }
+          - { name: i686, alt: x86 }
+          - { name: x86_64, alt: amd64 }
+          - { name: aarch64, alt: arm64 }
+          - { name: powerpc, alt: powerpc }
+          - { name: powerpc64, alt: powerpc64 }
+          - { name: riscv32, alt: riscv }
           - { name: riscv64, alt: riscv }
-        #  - { name: mips, alt: mips }
-        #  - { name: m68k, alt: m68k }
+          - { name: mips, alt: mips }
+          - { name: m68k, alt: m68k }
         libc: [ gnu, musl ]
-        #include:
-        #  - { arch: { name: mips64, alt: mips }, libc: gnuabi64 }
-        #  - { arch: { name: mips64, alt: mips }, libc: musl }
-        #  - { arch: { name: arm, alt: arm }, libc: gnueabihf }
-        #  - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
-        #exclude:
-        #  - { arch: { name: riscv32, alt: riscv }, libc: gnu }
+        include:
+          - { arch: { name: mips64, alt: mips }, libc: gnuabi64 }
+          - { arch: { name: mips64, alt: mips }, libc: musl }
+          - { arch: { name: arm, alt: arm }, libc: gnueabihf }
+          - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
+        exclude:
+          - { arch: { name: riscv32, alt: riscv }, libc: gnu }
 
     runs-on: ubuntu-latest
 
@@ -65,7 +65,7 @@ jobs:
           sudo apt-get install qemu-user-static
 
       - name: Install toolchain (musl.cc)
-        if: startsWith(matrix.libc, 'musl') && false
+        if: startsWith(matrix.libc, 'musl')
         run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
           tar -xf ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
@@ -209,7 +209,7 @@ jobs:
           build/bin/mlton -show path-map
 
       - name: Limit tests
-        if: true
+        if: false
         run: |
           cd mlton
           mv regression/real.sml .
