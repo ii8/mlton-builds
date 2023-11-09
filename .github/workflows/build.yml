@@ -64,8 +64,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install qemu-user-static
 
-      - name: Install toolchain (musl)
-        if: startsWith(matrix.libc, 'musl')
+      - name: Install toolchain (musl.cc)
+        if: startsWith(matrix.libc, 'musl') && false
         run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
           tar -xf ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
@@ -73,7 +73,7 @@ jobs:
           rm -r ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross \
                 ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
 
-      - name: Build toolchain (musl)
+      - name: Install toolchain (musl-cross-make)
         if: startsWith(matrix.libc, 'musl') && false
         run: |
           cd musl-cross-make
@@ -89,6 +89,41 @@ jobs:
           EOF
           make
           sudo make install
+
+      - name: Install toolchain (crosstool-ng)
+        if: startsWith(matrix.libc, 'musl') && false
+        run: |
+          curl -sOL http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-1.9.3.tar.bz2
+          cat <<EOF > checksum
+          699ac002ca24c93b526562b324bd6c039ae2603172e0480d7d0a05a3224249596b06a6d70041527b1b99753311c3878fd93419723150f4e6e0673499516427bf  crosstool-ng-1.9.3.tar.bz2
+          EOF
+          sha512sum -c checksum
+          tar -xf crosstool-ng-1.9.3.tar.bz2
+          cd crosstool-ng-1.9.3.tar.bz2
+          ./configure --prefix=/usr/local
+          make
+          sudo make install
+          cd ..
+          rm -r crosstool-ng-1.9.3 crosstool-ng-1.9.3.tar.bz2
+          mkdir cross && cd cross
+          cat <<EOF > .config
+          CT_CONFIG_VERSION="4"
+          CT_ARCH_ARM=y
+          CT_ARCH_ARCH="armv7-a"
+          CT_ARCH_SUFFIX="v7"
+          CT_ARCH_FPU="vfpv3"
+          CT_ARCH_FLOAT="hard"
+          CT_ARCH_FLOAT_HW=y
+          CT_OMIT_TARGET_VENDOR=y
+          CT_KERNEL_LINUX=y
+          CT_BINUTILS_LINKER_LD_GOLD=y
+          CT_BINUTILS_GOLD_THREADS=y
+          CT_BINUTILS_LD_WRAPPER=y
+          CT_BINUTILS_PLUGINS=y
+          CT_CROSS=y
+          CT_LIBC_MUSL=y
+          EOF
+          ct-ng build
 
       - name: Install toolchain (glibc)
         if: startsWith(matrix.libc, 'gnu') && matrix.arch.name != 'x86_64'
