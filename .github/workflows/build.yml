@@ -143,7 +143,7 @@ jobs:
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
           ./configure --disable-shared \
-                      ${{ matrix.arch.name == 'i686' && '--with-pic' || '' }} \
+                      ${{ matrix.arch.name == 'i686' && '--with-pic CFLAGS="-march=i686 -m32 -O0 -g -pedantic"' || '' }} \
                       ${{ matrix.arch.name == 'armv7l' && '--with-pic CFLAGS="-march=armv7-a -mfpu=vfpv3 -mfloat-abi=hard -O2 -pedantic"' || '' }} \
                       ${{ startsWith(matrix.arch.name, 'powerpc') && '--disable-assembly' || '' }} \
                       --build=x86_64-linux-gnu \
