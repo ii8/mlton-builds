@@ -24,22 +24,22 @@ jobs:
       matrix:
         arch:
           - { name: i686, alt: x86 }
-          - { name: x86_64, alt: amd64 }
-          - { name: aarch64, alt: arm64 }
-          - { name: powerpc, alt: powerpc }
-          - { name: powerpc64, alt: powerpc64 }
-          - { name: riscv32, alt: riscv }
-          - { name: riscv64, alt: riscv }
-          - { name: mips, alt: mips }
-          - { name: m68k, alt: m68k }
+          #- { name: x86_64, alt: amd64 }
+          #- { name: aarch64, alt: arm64 }
+          #- { name: powerpc, alt: powerpc }
+          #- { name: powerpc64, alt: powerpc64 }
+          #- { name: riscv32, alt: riscv }
+          #- { name: riscv64, alt: riscv }
+          #- { name: mips, alt: mips }
+          #- { name: m68k, alt: m68k }
         libc: [ gnu, musl ]
-        include:
-          - { arch: { name: mips64, alt: mips }, libc: gnuabi64 }
-          - { arch: { name: mips64, alt: mips }, libc: musl }
-          - { arch: { name: arm, alt: arm }, libc: gnueabihf }
-          - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
-        exclude:
-          - { arch: { name: riscv32, alt: riscv }, libc: gnu }
+        #include:
+        #  - { arch: { name: mips64, alt: mips }, libc: gnuabi64 }
+        #  - { arch: { name: mips64, alt: mips }, libc: musl }
+        #  - { arch: { name: arm, alt: arm }, libc: gnueabihf }
+        #  - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
+        #exclude:
+        #  - { arch: { name: riscv32, alt: riscv }, libc: gnu }
 
     runs-on: ubuntu-latest
 
@@ -234,11 +234,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coredump-${{ matrix.arch.name }}-${{ matrix.libc }}
-          path: |
-            mlton/build/lib/mlton/mlton-compile
-            /var/lib/apport/coredump/*
+          path: /var/lib/apport/coredump/*
 
       - name: Package
+        if: ${{ !cancelled() }}
         run: |
           cd mlton
           mv build mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
@@ -248,6 +247,7 @@ jobs:
                   > mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tar.gz.sha256sum
 
       - name: Upload Artifact
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v3
         with:
           name: mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}
