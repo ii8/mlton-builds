@@ -209,12 +209,14 @@ jobs:
           build/bin/mlton -show path-map
 
       - name: Limit tests
-        if: false
+        if: true
         run: |
           cd mlton
           mv regression/real.sml .
+          mv regression/real-basic.sml .
           rm -r regression/*
           mv real.sml regression/
+          mv real-basic.sml regression/
           mv benchmark/tests/raytrace.sml .
           rm -r benchmark/tests/*
           mv raytrace.sml benchmark/tests/
