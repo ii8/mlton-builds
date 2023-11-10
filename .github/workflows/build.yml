@@ -241,13 +241,11 @@ jobs:
                            -link-opt -static
 
       - name: Coredump
-        if: failure()
+        #if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: coredump-${{ matrix.arch.name }}-${{ matrix.libc }}
-          path: |
-            /var/lib/apport/coredump/*
-            mlton/regression/real-basic
+          path: mlton/regression/real-basic
 
       - name: Package
         if: ${{ !cancelled() }}
