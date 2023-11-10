@@ -10,6 +10,13 @@ All builds are extensively tested in an emulator.
 
 Builds marked with 🧀 have been confirmed to work natively for at least one user.
 
+## git04d76908f
+
+|          |  i686   | x86_64  | aarch64 | powerpc | powerpc64 | mips64 | riscv32 | riscv64 |
+| :---     |  :---:  |  :---:  |  :---:  |  :---:  |   :---:   | :---:  |  :---:  |  :---:  |
+| musl     |   🪤    |    🧀    |   🪤    |    🪤   |           |    🪤   |   🪤    |    🪤   |
+| glibc    |         |   🪤     |   🪤    |    🪤   |    🪤     |    🪤   |         |    🪤   |
+
 ## 20210117
 
 |          | x86_64  | aarch64 | powerpc64 | riscv64 |
