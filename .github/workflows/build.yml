@@ -206,7 +206,7 @@ jobs:
           PATH="/opt/boot/bin:$PATH" make \
             BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
-            OLD_MLTON_COMPILE_ARGS="-keep g -cc-opt -I/usr/local/include -link-opt -L/usr/local/lib -link-opt -static ${{ matrix.arch.name == 'armv7l' && '-cc-opt -march=armv7-a -cc-opt -mfpu=vfpv3 -cc-opt -mfloat-abi=hard' || '' }}" \
+            OLD_MLTON_COMPILE_ARGS="-debug true -keep g -cc-opt -I/usr/local/include -link-opt -L/usr/local/lib -link-opt -static ${{ matrix.arch.name == 'armv7l' && '-cc-opt -march=armv7-a -cc-opt -mfpu=vfpv3 -cc-opt -mfloat-abi=hard' || '' }}" \
             dirs runtime compiler script basis-no-check libraries-no-check tools
           mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} build/lib/mlton/targets/self
 
