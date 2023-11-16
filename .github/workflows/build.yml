@@ -246,12 +246,12 @@ jobs:
                            -link-opt -L/usr/local/lib \
                            -link-opt -static
 
-      - name: Coredump
-        if: false
+      - name: Debug
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: coredump-${{ matrix.arch.name }}-${{ matrix.libc }}
-          path: mlton/regression/real-basic
+          name: debug-${{ matrix.arch.name }}-${{ matrix.libc }}
+          path: mlton/mlton-compile*
 
       - name: Package
         if: ${{ !cancelled() }}
