@@ -221,9 +221,11 @@ jobs:
         if: true
         run: |
           cd mlton
+          mv regression/whitelist .
           mv regression/real.* .
           mv regression/real-basic.* .
           rm -r regression/*
+          mv whitelist regression/
           mv real.* regression/
           mv real-basic.* regression/
           mv benchmark/tests/raytrace.sml .
