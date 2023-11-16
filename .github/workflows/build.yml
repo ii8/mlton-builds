@@ -218,7 +218,7 @@ jobs:
           build/bin/mlton -show path-map
 
       - name: Limit tests
-        if: false
+        if: true
         run: |
           cd mlton
           mv regression/real.* .
