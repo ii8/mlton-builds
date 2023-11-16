@@ -221,10 +221,12 @@ jobs:
         if: true
         run: |
           cd mlton
+          mv regression/Makefile Makefile.regression
           mv regression/whitelist .
           mv regression/real.* .
           mv regression/real-basic.* .
           rm -r regression/*
+          mv Makefile.regression regression/Makefile
           mv whitelist regression/
           mv real.* regression/
           mv real-basic.* regression/
