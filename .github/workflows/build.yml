@@ -230,8 +230,10 @@ jobs:
           mv whitelist regression/
           mv real.* regression/
           mv real-basic.* regression/
+          mv benchmark/tests/Makefile Makefile.benchmark.tests
           mv benchmark/tests/raytrace.sml .
           rm -r benchmark/tests/*
+          mv Makefile.benchmark.tests benchmark/tests/Makefile
           mv raytrace.sml benchmark/tests/
 
       - name: Test
