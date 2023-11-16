@@ -172,7 +172,7 @@ jobs:
           rm mlton-20231109.223645-g04d7690-1.amd64-linux.ubuntu-latest_gcc_amd64.tgz
           sudo mv mlton-20231109.223645-g04d7690-1.amd64-linux.ubuntu-latest_gcc_amd64 /opt/boot
 
-      - name: Build target runtime (old)
+      - name: Build target runtime (release)
         if: false
         run: |
           curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117.src.tgz
@@ -188,7 +188,7 @@ jobs:
             dirs runtime
           sudo cp -fpR src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
 
-      - name: Build target runtime (new)
+      - name: Build target runtime (git)
         if: true
         run: |
           cd mlton
