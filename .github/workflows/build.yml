@@ -70,9 +70,8 @@ jobs:
         run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
           tar -xf ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
-          sudo cp -fpr ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross/* /usr/local/
-          rm -r ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross \
-                ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
+          sudo mv ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross /usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}
+          rm -r ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
 
       - name: Install toolchain (musl-cross-make)
         if: startsWith(matrix.libc, 'musl') && false
@@ -149,6 +148,7 @@ jobs:
                       ${{ startsWith(matrix.arch.name, 'powerpc') && '--disable-assembly' || '' }} \
                       --build=x86_64-linux-gnu \
                       --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
+                      --prefix=/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
           # make check
           sudo make install
@@ -185,7 +185,7 @@ jobs:
           PATH="/opt/boot/bin:$PATH" make \
             LDFLAGS=-static BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
-            WITH_GMP_DIR=/usr/local \
+            WITH_GMP_DIR=/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }} \
             dirs runtime
           sudo cp -fpR src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
 
@@ -197,7 +197,7 @@ jobs:
             LDFLAGS=-static BOOTSTRAP_STYLE=0 \
             ${{ matrix.arch.name == 'armv7l' && 'CFLAGS="-march=armv7-a -mfpu=vfpv3 -mfloat-abi=hard"' || '' }} \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
-            WITH_GMP_DIR=/usr/local \
+            WITH_GMP_DIR=/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }} \
             dirs runtime
           sudo cp -fpR build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
 
@@ -206,7 +206,7 @@ jobs:
           ls -l /usr/local/*
           mkdir hello && cd hello
           echo 'print "hi\n";' > hello.sml
-          PATH="/opt/boot/bin:$PATH" mlton -verbose 2 -debug true -keep g -target ${{ matrix.arch.name }}-linux-${{ matrix.libc }} -cc-opt -I/usr/local/include -link-opt -L/usr/local/lib -link-opt -static hello.sml
+          PATH="/opt/boot/bin:$PATH" mlton -verbose 2 -debug true -keep g -target ${{ matrix.arch.name }}-linux-${{ matrix.libc }} -cc-opt -I/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/include -link-opt -L/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/lib -link-opt -static hello.sml
           ./hello
           
       - name: Build MLton
@@ -215,7 +215,7 @@ jobs:
           PATH="/opt/boot/bin:$PATH" make \
             BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
-            OLD_MLTON_COMPILE_ARGS="-debug true -keep g -cc-opt -I/usr/local/include -link-opt -L/usr/local/lib -link-opt -static ${{ matrix.arch.name == 'armv7l' && '-cc-opt -march=armv7-a -cc-opt -mfpu=vfpv3 -cc-opt -mfloat-abi=hard' || '' }}" \
+            OLD_MLTON_COMPILE_ARGS="-debug true -keep g -cc-opt -I/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/include -link-opt -L/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/lib -link-opt -static ${{ matrix.arch.name == 'armv7l' && '-cc-opt -march=armv7-a -cc-opt -mfpu=vfpv3 -cc-opt -mfloat-abi=hard' || '' }}" \
             dirs runtime compiler script basis-no-check libraries-no-check tools
           mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} build/lib/mlton/targets/self
 
@@ -251,8 +251,8 @@ jobs:
           ulimit -c unlimited
           ./bin/regression -verbose 1 \
                            -cc ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-gcc \
-                           -cc-opt -I/usr/local/include \
-                           -link-opt -L/usr/local/lib \
+                           -cc-opt -I/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/include \
+                           -link-opt -L/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/lib \
                            -link-opt -static
 
       - name: Debug
