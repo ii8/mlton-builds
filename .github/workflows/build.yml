@@ -203,6 +203,7 @@ jobs:
 
       - name: Build Hello World
         run: |
+          ls -l /usr/local/*
           mkdir hello && cd hello
           echo 'print "hi\n";' > hello.sml
           PATH="/opt/boot/bin:$PATH" mlton -verbose 2 -debug true -keep g -target ${{ matrix.arch.name }}-linux-${{ matrix.libc }} -cc-opt -I/usr/local/include -link-opt -L/usr/local/lib -link-opt -static
