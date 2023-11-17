@@ -70,9 +70,9 @@ jobs:
         run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
           tar -xf ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
-          rm -r ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
-          sudo mv ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross /usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}
-          echo "PATH=/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/bin:$PATH" >> "$GITHUB_ENV"
+          sudo cp -fpr ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross/* /usr/local/
+          rm -r ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross \
+                ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
 
       - name: Install toolchain (musl-cross-make)
         if: startsWith(matrix.libc, 'musl') && false
@@ -189,7 +189,7 @@ jobs:
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
             WITH_GMP_DIR=/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }} \
             dirs runtime
-          sudo cp -fpR src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
+          sudo cp -fpr src/build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
 
       - name: Build target runtime (git)
         if: true
@@ -201,7 +201,7 @@ jobs:
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
             WITH_GMP_DIR=/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }} \
             dirs runtime
-          sudo cp -fpR build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
+          sudo cp -fpr build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
 
       - name: Build Hello World
         run: |
