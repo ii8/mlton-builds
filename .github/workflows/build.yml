@@ -70,8 +70,9 @@ jobs:
         run: |
           curl -sOL https://more.musl.cc/x86_64-linux-musl/${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
           tar -xf ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
-          sudo mv ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross /usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           rm -r ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross.tgz
+          sudo mv ${{ matrix.arch.name }}-linux-${{ matrix.libc }}-cross /usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}
+          echo "PATH=/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/bin:$PATH" >> "$GITHUB_ENV"
 
       - name: Install toolchain (musl-cross-make)
         if: startsWith(matrix.libc, 'musl') && false
