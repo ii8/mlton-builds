@@ -142,13 +142,14 @@ jobs:
           curl -sOL https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar -xf gmp-6.3.0.tar.xz
           cd gmp-6.3.0
-          ./configure --disable-shared \
+          ./configure --prefix=/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }} \
+                      --disable-shared \
                       ${{ matrix.arch.name == 'i686' && '--with-pic' || '' }} \
+                      ${{ matrix.arch.name == 'arm' && '--with-pic' || '' }} \
                       ${{ matrix.arch.name == 'armv7l' && '--with-pic CFLAGS="-march=armv7-a -mfpu=vfpv3 -mfloat-abi=hard -O2 -pedantic"' || '' }} \
                       ${{ startsWith(matrix.arch.name, 'powerpc') && '--disable-assembly' || '' }} \
                       --build=x86_64-linux-gnu \
                       --host=${{ matrix.arch.name }}-linux-${{ matrix.libc }}
-                      --prefix=/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}
           make
           # make check
           sudo make install
