@@ -210,6 +210,7 @@ jobs:
           echo 'print "hi\n";' > hello.sml
           PATH="/opt/boot/bin:$PATH" mlton -verbose 2 -debug true -keep g -keep o -target ${{ matrix.arch.name }}-linux-${{ matrix.libc }} -cc-opt -I/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/include -cc-opt -Wall -cc-opt -Wextra -link-opt -fuse-ld=gold -link-opt -L/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/lib -link-opt -static hello.sml
           ./hello
+          false
           
       - name: Build MLton
         run: |
