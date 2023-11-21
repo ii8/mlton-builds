@@ -23,24 +23,23 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-        #  - { name: i686, alt: x86 }
-        #  - { name: x86_64, alt: amd64 }
-        #  - { name: aarch64, alt: arm64 }
-        #  - { name: powerpc, alt: powerpc }
+          - { name: i686, alt: x86 }
+          - { name: x86_64, alt: amd64 }
+          - { name: aarch64, alt: arm64 }
+          - { name: powerpc, alt: powerpc }
           - { name: powerpc64, alt: powerpc64 }
-        #  - { name: riscv32, alt: riscv }
-        #  - { name: riscv64, alt: riscv }
-        #  - { name: mips, alt: mips }
-        #  - { name: m68k, alt: m68k }
+          - { name: riscv32, alt: riscv }
+          - { name: riscv64, alt: riscv }
+          - { name: mips, alt: mips }
         libc: [ gnu, musl ]
-        #include:
-        #  - { arch: { name: mips64, alt: mips }, libc: gnuabi64 }
-        #  - { arch: { name: mips64, alt: mips }, libc: musl }
-        #  - { arch: { name: arm, alt: arm }, libc: gnueabihf }
-        #  - { arch: { name: arm, alt: arm }, libc: musleabihf }
-        #  - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
-        #exclude:
-        #  - { arch: { name: riscv32, alt: riscv }, libc: gnu }
+        include:
+          - { arch: { name: mips64, alt: mips }, libc: gnuabi64 }
+          - { arch: { name: mips64, alt: mips }, libc: musl }
+          - { arch: { name: arm, alt: arm }, libc: gnueabihf }
+          - { arch: { name: arm, alt: arm }, libc: musleabihf }
+          - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
+        exclude:
+          - { arch: { name: riscv32, alt: riscv }, libc: gnu }
 
     runs-on: ubuntu-latest
 
@@ -203,14 +202,6 @@ jobs:
             dirs runtime
           sudo cp -fpr build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} /opt/boot/lib/mlton/targets/
 
-      - name: Build Hello World
-        run: |
-          mkdir hello && cd hello
-          sed -i 's/-O1/-O0/' /opt/boot/bin/mlton
-          echo 'print "hi\n";' > hello.sml
-          PATH="/opt/boot/bin:$PATH" mlton -verbose 2 -debug true -keep g -keep o -align 8 -target ${{ matrix.arch.name }}-linux-${{ matrix.libc }} -cc-opt -I/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/include -cc-opt -Wall -cc-opt -Wextra -link-opt -L/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/lib -link-opt -static hello.sml
-          ./hello
-          
       - name: Build MLton
         run: |
           cd mlton
@@ -229,7 +220,7 @@ jobs:
           build/bin/mlton -show path-map
 
       - name: Limit tests
-        if: true
+        if: false
         run: |
           cd mlton
           mv regression/Makefile Makefile.regression
@@ -262,7 +253,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: debug-${{ matrix.arch.name }}-${{ matrix.libc }}
-          path: hello/*
+          path: mlton/build
 
       - name: Package
         if: ${{ !cancelled() }}
