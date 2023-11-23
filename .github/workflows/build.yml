@@ -169,10 +169,10 @@ jobs:
       - name: Install bootstrap mlton (git)
         if: true
         run: |
-          curl -sOL https://github.com/ii8/mlton-builds/releases/download/20210117/mlton-20231109.223645-g04d7690-1.amd64-linux.ubuntu-latest_gcc_amd64.tgz
-          tar -xf mlton-20231109.223645-g04d7690-1.amd64-linux.ubuntu-latest_gcc_amd64.tgz
-          rm mlton-20231109.223645-g04d7690-1.amd64-linux.ubuntu-latest_gcc_amd64.tgz
-          sudo mv mlton-20231109.223645-g04d7690-1.amd64-linux.ubuntu-latest_gcc_amd64 /opt/boot
+          curl -sOL https://github.com/ii8/mlton-builds/releases/download/bootstrap/mlton-20231123.140423-gfd6d870-1.amd64-linux.ubuntu-latest_gcc_amd64.tgz
+          tar -xf mlton-20231123.140423-gfd6d870-1.amd64-linux.ubuntu-latest_gcc_amd64.tgz
+          rm mlton-20231123.140423-gfd6d870-1.amd64-linux.ubuntu-latest_gcc_amd64.tgz
+          sudo mv mlton-20231123.140423-gfd6d870-1.amd64-linux.ubuntu-latest_gcc_amd64 /opt/boot
 
       - name: Build target runtime (release)
         if: false
@@ -208,7 +208,7 @@ jobs:
           PATH="/opt/boot/bin:$PATH" make \
             BOOTSTRAP_STYLE=0 \
             TARGET=${{ matrix.arch.name }}-linux-${{ matrix.libc }} TARGET_ARCH=${{ matrix.arch.alt }} TARGET_OS=linux \
-            OLD_MLTON_COMPILE_ARGS="-debug true -keep g -align 8 -cc-opt -I/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/include -link-opt -L/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/lib -link-opt -static ${{ matrix.arch.name == 'armv7l' && '-cc-opt -march=armv7-a -cc-opt -mfpu=vfpv3 -cc-opt -mfloat-abi=hard' || '' }}" \
+            OLD_MLTON_COMPILE_ARGS="-cc-opt -I/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/include -link-opt -L/usr/local/${{ matrix.arch.name }}-linux-${{ matrix.libc }}/lib -link-opt -static ${{ matrix.arch.name == 'armv7l' && '-cc-opt -march=armv7-a -cc-opt -mfpu=vfpv3 -cc-opt -mfloat-abi=hard' || '' }}" \
             dirs runtime compiler script basis-no-check libraries-no-check tools
           mv build/lib/mlton/targets/${{ matrix.arch.name }}-linux-${{ matrix.libc }} build/lib/mlton/targets/self
 
@@ -273,6 +273,7 @@ jobs:
           path: mlton/mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.tar.gz
 
       - name: Upload Checksum
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v3
         with:
           name: mlton-${{ inputs.ref }}.${{ matrix.arch.name }}-linux-${{ matrix.libc }}.sha256sum
