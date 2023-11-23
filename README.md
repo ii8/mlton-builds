@@ -6,6 +6,13 @@ Documentation is not included. It is recommended to use these MLtons to bootstra
 
 Builds marked with 🧀 have been confirmed to work natively for at least one user.
 
+## [gitfd6d87057](https://github.com/ii8/mlton-builds/releases/tag/gitfd6d87057)
+
+|          |  i686   | x86_64  |   arm   | armv7l  | aarch64 | powerpc |powerpc64|  mips   | mips64  | riscv32 | riscv64 |
+| :---     |  :---:  |  :---:  |  :---:  |  :---:  |  :---:  |  :---:  |  :---:  |  :---:  |  :---:  |  :---:  |  :---:  |
+| musl     |   🪤    |    🧀    |   🪤    |    🪤   |    🪤    |   🪤    |   🪤    |    🪤    |    🪤   |    🪤   |    🪤    |
+| glibc    |   🪤    |    🪤    |   🪤    |         |    🪤    |   🪤    |   🪤    |    🪤    |    🪤   |         |    🪤   |
+
 ## [git04d76908f](https://github.com/ii8/mlton-builds/releases/tag/git04d76908f)
 
 |          |  i686   | x86_64  | aarch64 | powerpc | powerpc64 | mips64 | riscv32 | riscv64 |
