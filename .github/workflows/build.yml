@@ -157,17 +157,17 @@ jobs:
           rm -r gmp-6.3.0 gmp-6.3.0.tar.xz
 
       - name: Install bootstrap mlton (release)
-        if: false
+        if: true
         run: |
-          curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117-1.amd64-linux-glibc2.31.tgz
-          tar -xf mlton-20210117-1.amd64-linux-glibc2.31.tgz --exclude='*/share'
-          rm mlton-20210117-1.amd64-linux-glibc2.31.tgz
-          sudo mv mlton-20210117-1.amd64-linux-glibc2.31 /opt/boot
+          curl -sOL https://github.com/MLton/mlton/releases/download/on-20241230-release/mlton-20241230-1.amd64-linux.ubuntu-22.04_static.tgz
+          tar -xf mlton-20241230-1.amd64-linux.ubuntu-22.04_static.tgz --exclude='*/share'
+          rm mlton-20241230-1.amd64-linux.ubuntu-22.04_static.tgz
+          sudo mv mlton-20241230-1.amd64-linux.ubuntu-22.04_static /opt/boot
           # Backport fixes
-          sudo cp -p mlton/runtime/platform/linux.h /opt/boot/lib/mlton/include/platform/linux.h
+          # sudo cp -p mlton/runtime/platform/linux.h /opt/boot/lib/mlton/include/platform/linux.h
 
       - name: Install bootstrap mlton (git)
-        if: true
+        if: false
         run: |
           curl -sOL https://github.com/ii8/mlton-builds/releases/download/bootstrap/mlton-20231123.140423-gfd6d870-1.amd64-linux.ubuntu-latest_gcc_amd64.tgz
           tar -xf mlton-20231123.140423-gfd6d870-1.amd64-linux.ubuntu-latest_gcc_amd64.tgz
@@ -177,11 +177,11 @@ jobs:
       - name: Build target runtime (release)
         if: false
         run: |
-          curl -sOL https://github.com/MLton/mlton/releases/download/on-20210117-release/mlton-20210117.src.tgz
-          tar xzf mlton-20210117.src.tgz
-          rm mlton-20210117.src.tgz
-          mv mlton-20210117 src
-          cp runtime/platform/linux.h src/runtime/platform/linux.h
+          curl -sOL https://github.com/MLton/mlton/releases/download/on-20241230-release/mlton-20241230.src.tgz
+          tar xzf mlton-20241230.src.tgz
+          rm mlton-20241230.src.tgz
+          mv mlton-20241230 src
+          # cp runtime/platform/linux.h src/runtime/platform/linux.h
           cd src
           PATH="/opt/boot/bin:$PATH" make \
             LDFLAGS=-static BOOTSTRAP_STYLE=0 \
