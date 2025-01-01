@@ -38,8 +38,8 @@ jobs:
           - { arch: { name: arm, alt: arm }, libc: gnueabihf }
           - { arch: { name: arm, alt: arm }, libc: musleabihf }
           - { arch: { name: armv7l, alt: arm }, libc: musleabihf }
-        #exclude:
-        #  - { arch: { name: riscv32, alt: riscv }, libc: gnu }
+        exclude:
+          - { arch: { name: riscv32, alt: riscv }, libc: gnu }
 
     runs-on: ubuntu-24.04
 
